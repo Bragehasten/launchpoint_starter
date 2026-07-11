@@ -1,0 +1,25 @@
+/* BOLD — heavy Archivo, near-sharp corners, vivid primary, decisive shadows.
+   Gyms, agencies, anyone who wants the site to shout a little. */
+
+html[data-theme="bold"] {
+  --display: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+  --heading-weight: 800;
+  --heading-tracking: -0.03em;
+  --radius: 0.125rem;
+  --elevation-card: 0 2px 6px -1px rgb(0 0 0 / 0.14);
+  --elevation-high: 0 16px 32px -8px rgb(0 0 0 / 0.28);
+
+  --primary: oklch(0.5 0.22 262);
+  --primary-foreground: oklch(0.985 0 0);
+  --accent: oklch(0.94 0.03 262);
+  --accent-foreground: oklch(0.35 0.18 262);
+  --ring: oklch(0.5 0.22 262);
+}
+
+html[data-theme="bold"].dark {
+  --primary: oklch(0.66 0.2 262);
+  --primary-foreground: oklch(0.14 0.02 262);
+  --accent: oklch(0.3 0.06 262);
+  --accent-foreground: oklch(0.9 0.03 262);
+  --ring: oklch(0.66 0.2 262);
+}

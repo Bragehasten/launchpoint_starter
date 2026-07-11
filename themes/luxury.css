@@ -1,0 +1,47 @@
+/* LUXURY — editorial serif, warm neutrals, gold ring, unhurried spacing.
+   Med spas, custom home builders, fine dining.
+   Rule: every color set in the light block is also set in .dark. */
+
+html[data-theme="luxury"] {
+  --display: "Playfair Display Variable", Georgia, "Times New Roman", serif;
+  --heading-weight: 600;
+  --heading-tracking: 0em;
+  --radius: 0.25rem;
+  --section-space: clamp(5rem, 10vw, 8rem);
+  --elevation-card: 0 2px 12px -2px rgb(0 0 0 / 0.08);
+  --elevation-high: 0 24px 48px -12px rgb(0 0 0 / 0.18);
+
+  --background: oklch(0.985 0.004 85);
+  --foreground: oklch(0.22 0.015 60);
+  --card: oklch(0.995 0.002 85);
+  --card-foreground: oklch(0.22 0.015 60);
+  --primary: oklch(0.3 0.03 60);
+  --primary-foreground: oklch(0.985 0.004 85);
+  --secondary: oklch(0.955 0.008 85);
+  --secondary-foreground: oklch(0.3 0.03 60);
+  --muted: oklch(0.955 0.008 85);
+  --muted-foreground: oklch(0.5 0.02 60);
+  --accent: oklch(0.94 0.02 85);
+  --accent-foreground: oklch(0.3 0.03 60);
+  --border: oklch(0.9 0.01 85);
+  --input: oklch(0.9 0.01 85);
+  --ring: oklch(0.78 0.11 85);
+}
+
+html[data-theme="luxury"].dark {
+  --background: oklch(0.18 0.012 60);
+  --foreground: oklch(0.94 0.008 85);
+  --card: oklch(0.23 0.015 60);
+  --card-foreground: oklch(0.94 0.008 85);
+  --primary: oklch(0.83 0.1 85);
+  --primary-foreground: oklch(0.2 0.02 60);
+  --secondary: oklch(0.28 0.02 60);
+  --secondary-foreground: oklch(0.94 0.008 85);
+  --muted: oklch(0.28 0.02 60);
+  --muted-foreground: oklch(0.68 0.02 75);
+  --accent: oklch(0.3 0.03 70);
+  --accent-foreground: oklch(0.94 0.008 85);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.78 0.11 85);
+}

@@ -1,0 +1,22 @@
+/* MINIMAL — quiet grayscale, borders instead of shadows, tighter rhythm.
+   Coffee shops, salons, studios. Inherits the base (Modern) palette and
+   mostly subtracts: elevation approaches zero, contrast does the work. */
+
+html[data-theme="minimal"] {
+  --heading-weight: 600;
+  --heading-tracking: -0.01em;
+  --radius: 0.25rem;
+  --section-space: clamp(3.5rem, 6vw, 5rem);
+  --elevation-card: none;
+  --elevation-high: 0 4px 12px -4px rgb(0 0 0 / 0.08);
+
+  --primary: oklch(0.3 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.6 0 0);
+}
+
+html[data-theme="minimal"].dark {
+  --primary: oklch(0.87 0 0);
+  --primary-foreground: oklch(0.2 0 0);
+  --ring: oklch(0.6 0 0);
+}

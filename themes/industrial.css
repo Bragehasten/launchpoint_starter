@@ -1,0 +1,46 @@
+/* INDUSTRIAL — condensed uppercase Oswald, zero radius, steel + safety
+   orange. The trades: roofers, HVAC, electricians, fence and paver crews. */
+
+html[data-theme="industrial"] {
+  --display: "Oswald Variable", "Arial Narrow", ui-sans-serif, sans-serif;
+  --heading-weight: 600;
+  --heading-tracking: 0.02em;
+  --heading-transform: uppercase;
+  --radius: 0rem;
+  --elevation-card: 0 1px 3px 0 rgb(0 0 0 / 0.16);
+  --elevation-high: 0 12px 24px -8px rgb(0 0 0 / 0.3);
+
+  --background: oklch(0.975 0.002 240);
+  --foreground: oklch(0.2 0.01 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.01 240);
+  --primary: oklch(0.64 0.19 41);
+  --primary-foreground: oklch(0.99 0.005 41);
+  --secondary: oklch(0.94 0.005 240);
+  --secondary-foreground: oklch(0.25 0.015 240);
+  --muted: oklch(0.94 0.005 240);
+  --muted-foreground: oklch(0.48 0.015 240);
+  --accent: oklch(0.92 0.01 240);
+  --accent-foreground: oklch(0.25 0.015 240);
+  --border: oklch(0.88 0.008 240);
+  --input: oklch(0.88 0.008 240);
+  --ring: oklch(0.64 0.19 41);
+}
+
+html[data-theme="industrial"].dark {
+  --background: oklch(0.19 0.01 240);
+  --foreground: oklch(0.96 0.003 240);
+  --card: oklch(0.24 0.012 240);
+  --card-foreground: oklch(0.96 0.003 240);
+  --primary: oklch(0.7 0.18 41);
+  --primary-foreground: oklch(0.16 0.02 41);
+  --secondary: oklch(0.29 0.012 240);
+  --secondary-foreground: oklch(0.96 0.003 240);
+  --muted: oklch(0.29 0.012 240);
+  --muted-foreground: oklch(0.7 0.01 240);
+  --accent: oklch(0.31 0.015 240);
+  --accent-foreground: oklch(0.96 0.003 240);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.7 0.18 41);
+}
