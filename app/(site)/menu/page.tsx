@@ -8,7 +8,26 @@ import { FadeIn } from "@/components/shared/motion";
 import { getCapability } from "@/lib/capabilities";
 import { formatServicePrice, getServiceGroups } from "@/lib/capabilities/queries";
 import { createMetadata } from "@/lib/seo";
+import { getLocale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+
+const en = {
+  title: "Our Services",
+  empty: "Add groups and items in Admin → Services to fill this page.",
+  ctaMenu: "Hungry yet?",
+  ctaServices: "Ready to book?",
+  contact: "Contact us",
+};
+
+const es: typeof en = {
+  title: "Nuestros servicios",
+  empty: "Agrega grupos y elementos en Admin → Servicios para llenar esta página.",
+  ctaMenu: "¿Ya tienes hambre?",
+  ctaServices: "¿Listo para reservar?",
+  contact: "Contáctanos",
+};
+
+const pageContent = { en, es };
 
 export async function generateMetadata(): Promise<Metadata> {
   const capability = getCapability("services");
@@ -28,18 +47,17 @@ export default async function MenuPage() {
   const showPrices = capability.showPrices !== false;
   const isMenu = capability.presentation === "menu";
 
+  const locale = await getLocale();
+  const t = pageContent[locale];
+
   return (
     <>
       <Section>
         <Container className="flex max-w-3xl flex-col gap-12">
           <SectionHeading
-            eyebrow={capability.label}
-            title={capability.label ?? "Our Services"}
-            description={
-              groups.length === 0
-                ? "Add groups and items in Admin → Services to fill this page."
-                : undefined
-            }
+            eyebrow={locale === "es" ? undefined : capability.label}
+            title={locale === "es" ? t.title : (capability.label ?? t.title)}
+            description={groups.length === 0 ? t.empty : undefined}
           />
           {groups.map((group) => (
             <FadeIn key={group.id} className="flex flex-col gap-4">
@@ -77,8 +95,8 @@ export default async function MenuPage() {
         </Container>
       </Section>
       <Cta
-        title={isMenu ? "Hungry yet?" : "Ready to book?"}
-        actions={[{ label: "Contact us", href: "/contact" }]}
+        title={isMenu ? t.ctaMenu : t.ctaServices}
+        actions={[{ label: t.contact, href: "/contact" }]}
       />
     </>
   );

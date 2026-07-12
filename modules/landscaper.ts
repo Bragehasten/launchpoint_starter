@@ -20,6 +20,7 @@ export const landscaper: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "Landscaping",
+      serviceNounEs: "Paisajismo",
     },
   },
   nav: [

@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { enabledForms } from "@/config/forms";
 import { siteConfig } from "@/config/site";
 import { CAPABILITY_PATHS, enabledCapabilities } from "@/lib/capabilities";
+import { isMultilingual } from "@/lib/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -35,6 +36,20 @@ const CAPABILITY_ROUTES_WITH_PAGES = new Set([
 ]);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Bilingual sites list every URL twice: the English original and its /es
+  // mirror (slightly lower priority — English is canonical).
+  const withLocales = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap =>
+    isMultilingual()
+      ? entries.flatMap((entry) => [
+          entry,
+          {
+            ...entry,
+            url: entry.url.replace(siteConfig.url, `${siteConfig.url}/es`),
+            priority: Math.max(0.1, (entry.priority ?? 0.5) - 0.1),
+          },
+        ])
+      : entries;
+
   const capabilityRoutes = enabledCapabilities()
     .filter((key) => CAPABILITY_ROUTES_WITH_PAGES.has(key))
     .map((key) => ({ path: CAPABILITY_PATHS[key], priority: 0.8 }));
@@ -72,7 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         : Promise.resolve({ data: [] as { slug: string; updated_at: string }[] }),
     ]);
 
-  return [
+  return withLocales([
     ...[...STATIC_ROUTES, ...capabilityRoutes, ...formRoutes].map((route) => ({
       url: `${siteConfig.url}${route.path === "/" ? "" : route.path}`,
       priority: route.priority,
@@ -104,5 +119,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
       changeFrequency: "weekly" as const,
     })),
-  ];
+  ]);
 }

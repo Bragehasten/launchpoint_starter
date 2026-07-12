@@ -62,6 +62,18 @@ test.describe("public surface", () => {
     expect(response.status()).toBe(404);
   });
 
+  test("spanish mirror renders localized chrome", async ({ page }) => {
+    await page.goto("/es");
+    await expect(page.locator("html")).toHaveAttribute("lang", "es");
+    await expect(page.getByText("Suscríbete a nuestro boletín")).toBeVisible();
+  });
+
+  test("language switcher preserves the path", async ({ page }) => {
+    await page.goto("/contact");
+    await page.getByRole("link", { name: /en español/i }).click();
+    await expect(page).toHaveURL(/\/es\/contact$/);
+  });
+
   test("blog index renders", async ({ page }) => {
     const response = await page.goto("/blog");
     expect(response?.status()).toBe(200);

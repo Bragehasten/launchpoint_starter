@@ -20,6 +20,7 @@ export const paverCompany: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "Paver Installation",
+      serviceNounEs: "Instalación de Adoquines",
     },
   },
   nav: [

@@ -21,6 +21,7 @@ export const generalContractor: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "General Contracting",
+      serviceNounEs: "Contratista General",
     },
   },
   nav: [

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Check } from "lucide-react";
 
@@ -17,7 +17,8 @@ import {
   getServiceAreas,
   getServiceGroups,
 } from "@/lib/capabilities/queries";
-import { toClientDef } from "@/lib/forms/types";
+import { resolveFormDef, toClientDef } from "@/lib/forms/types";
+import { getDict, interpolate } from "@/lib/i18n";
 import { createMetadata, faqJsonLd, JsonLd, serviceAreaJsonLd } from "@/lib/seo";
 import type { Json } from "@/types/json";
 
@@ -52,9 +53,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const area = await getServiceAreaBySlug(slug);
   if (!area) return {};
-  const noun = capability.serviceNoun ?? clientConfig.module.label;
+  const { locale, dict } = await getDict();
+  const noun =
+    (locale === "es" ? capability.serviceNounEs : undefined) ??
+    capability.serviceNoun ??
+    clientConfig.module.label;
+  const localizedName = `${area.name}${area.region ? `, ${area.region}` : ""}`;
   return createMetadata({
-    title: `${noun} in ${area.name}${area.region ? `, ${area.region}` : ""}`,
+    title: interpolate(dict.serviceAreas.inArea, { noun, area: localizedName }),
     description: area.intro,
     path: `/service-areas/${slug}`,
   });
@@ -68,7 +74,11 @@ export default async function ServiceAreaPage({ params }: { params: Promise<{ sl
   const area = await getServiceAreaBySlug(slug);
   if (!area) notFound();
 
-  const noun = capability.serviceNoun ?? clientConfig.module.label;
+  const { locale, dict } = await getDict();
+  const noun =
+    (locale === "es" ? capability.serviceNounEs : undefined) ??
+    capability.serviceNoun ??
+    clientConfig.module.label;
   const [allAreas, serviceGroups] = await Promise.all([
     getServiceAreas(),
     isCapabilityEnabled("services") ? getServiceGroups() : Promise.resolve([]),
@@ -99,11 +109,13 @@ export default async function ServiceAreaPage({ params }: { params: Promise<{ sl
               className="text-muted-foreground inline-flex w-fit items-center gap-1.5 text-sm hover:underline"
             >
               <ArrowLeft className="size-3.5" aria-hidden="true" />
-              All service areas
+              {dict.serviceAreas.allAreas}
             </Link>
             <h1 className="heading text-3xl text-balance sm:text-5xl">
-              {noun} in {area.name}
-              {area.region ? `, ${area.region}` : ""}
+              {interpolate(dict.serviceAreas.inArea, {
+                noun,
+                area: `${area.name}${area.region ? `, ${area.region}` : ""}`,
+              })}
             </h1>
             <p className="text-muted-foreground max-w-2xl text-lg">{area.intro}</p>
           </div>
@@ -116,7 +128,9 @@ export default async function ServiceAreaPage({ params }: { params: Promise<{ sl
 
           {services.length > 0 ? (
             <div className="flex flex-col gap-4">
-              <h2 className="heading text-2xl">What we do in {area.name}</h2>
+              <h2 className="heading text-2xl">
+                {interpolate(dict.serviceAreas.whatWeDo, { area: area.name })}
+              </h2>
               <ul className="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                 {services.map((service) => (
                   <li key={service.id} className="flex items-center gap-2 text-sm">
@@ -131,18 +145,24 @@ export default async function ServiceAreaPage({ params }: { params: Promise<{ sl
       </Section>
 
       {faqs.length > 0 ? (
-        <Faq heading={{ title: `${area.name} questions`, align: "left" }} items={faqs} />
+        <Faq
+          heading={{
+            title: interpolate(dict.serviceAreas.questions, { area: area.name }),
+            align: "left",
+          }}
+          items={faqs}
+        />
       ) : null}
 
       {quoteDef ? (
         <Section>
           <Container className="flex max-w-2xl flex-col gap-8">
             <SectionHeading
-              title={`Get a free quote in ${area.name}`}
-              description="Tell us about the job — we respond within one business day."
+              title={interpolate(dict.serviceAreas.freeQuote, { area: area.name })}
+              description={dict.serviceAreas.freeQuoteBody}
               align="left"
             />
-            <DynamicForm def={toClientDef(quoteDef)} />
+            <DynamicForm def={toClientDef(resolveFormDef(quoteDef, locale))} />
           </Container>
         </Section>
       ) : null}
@@ -151,7 +171,7 @@ export default async function ServiceAreaPage({ params }: { params: Promise<{ sl
         <Section className="pt-0">
           <Container className="flex flex-col gap-4">
             <h2 className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
-              Also serving
+              {dict.serviceAreas.alsoServing}
             </h2>
             <ul className="flex flex-wrap gap-2">
               {otherAreas.map((other) => (

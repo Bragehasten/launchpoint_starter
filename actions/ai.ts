@@ -7,6 +7,7 @@ import { extractJson, generate } from "@/lib/ai/client";
 import { buildBusinessContext } from "@/lib/ai/context";
 import { aiTasks, aiTaskKeys, type AiTaskKey } from "@/lib/ai/tasks";
 import { requireRole } from "@/lib/auth";
+import { TRANSLATABLE_FIELDS } from "@/lib/i18n/content";
 import { createLogger } from "@/lib/log";
 import { rateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
@@ -136,4 +137,90 @@ export async function createServiceAreaDraft(input: unknown): Promise<AreaDraftR
 
   revalidatePath("/admin/service-areas");
   return { success: true, slug };
+}
+
+// ---------------------------------------------------------------------------
+// Batch translation: fills MISSING Spanish translations for an entity type.
+// English stays the source of truth; translations overlay at render time.
+// ---------------------------------------------------------------------------
+
+const translateSchema = z.object({
+  entity: z.enum(Object.keys(TRANSLATABLE_FIELDS) as [string, ...string[]]),
+});
+
+export type TranslateResult =
+  { success: true; translated: number; remaining: number } | { success: false; message: string };
+
+const BATCH_SIZE = 8;
+
+export async function translateEntityToSpanish(input: unknown): Promise<TranslateResult> {
+  const limited = await guard();
+  if (limited) return limited;
+
+  const parsed = translateSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Unknown content type." };
+  const entity = parsed.data.entity;
+  const fields = TRANSLATABLE_FIELDS[entity] ?? [];
+
+  const supabase = await createClient();
+  const [{ data: rows }, { data: existing }] = await Promise.all([
+    supabase.from(entity as "services").select("*"),
+    supabase.from("translations").select("entity_id").eq("entity", entity).eq("locale", "es"),
+  ]);
+  const translatedIds = new Set((existing ?? []).map((t) => t.entity_id));
+  const pending = ((rows ?? []) as ({ id: string } & Record<string, unknown>)[]).filter(
+    (row) => !translatedIds.has(row.id),
+  );
+  const batch = pending.slice(0, BATCH_SIZE);
+
+  let translated = 0;
+  for (const row of batch) {
+    const source: Record<string, unknown> = {};
+    for (const field of fields) {
+      const value = row[field];
+      if (value !== null && value !== undefined && value !== "") source[field] = value;
+    }
+    if (Object.keys(source).length === 0) continue;
+
+    const result = await generate({
+      system:
+        "You are a professional English→Spanish translator for a local business website. " +
+        "Use natural, neutral Latin American Spanish (US market). Keep tone and length. " +
+        "Do NOT translate proper nouns, addresses, or brand names. " +
+        "Respond ONLY with a JSON object mirroring the input keys; JSON-array values stay " +
+        "JSON arrays with the same structure, translating only human-readable strings.",
+      prompt: JSON.stringify(source),
+      maxTokens: 2000,
+    });
+    if (!result.success) return { success: false, message: result.message };
+
+    const translatedFields = extractJson<Record<string, unknown>>(result.text);
+    if (!translatedFields) continue;
+
+    const inserts = fields
+      .filter((field) => translatedFields[field] !== undefined && source[field] !== undefined)
+      .map((field) => ({
+        entity,
+        entity_id: row.id,
+        locale: "es",
+        field,
+        value:
+          typeof translatedFields[field] === "string"
+            ? (translatedFields[field] as string)
+            : JSON.stringify(translatedFields[field]),
+      }));
+    if (inserts.length === 0) continue;
+
+    const { error } = await supabase
+      .from("translations")
+      .upsert(inserts, { onConflict: "entity,entity_id,locale,field" });
+    if (error) {
+      log.error("translation upsert failed", { entity, error: error.message });
+      return { success: false, message: "Could not save translations — try again." };
+    }
+    translated += 1;
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true, translated, remaining: pending.length - translated };
 }

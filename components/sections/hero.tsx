@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 
 import { Container, Section } from "@/components/shared/container";
 import { FadeIn } from "@/components/shared/motion";

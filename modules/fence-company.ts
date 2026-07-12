@@ -25,6 +25,7 @@ export const fenceCompany: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "Fence Installation",
+      serviceNounEs: "Instalación de Cercas",
     },
   },
   nav: [

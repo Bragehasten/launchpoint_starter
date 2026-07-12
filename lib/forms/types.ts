@@ -52,6 +52,19 @@ export type FormDef = {
   emergency?: boolean;
   /** Confirmation email sent to the submitter (requires Resend). */
   autoresponder?: { subject: string; body: string };
+  /**
+   * Spanish strings (i18n, docs/i18n.md). Anything omitted falls back to
+   * English. The OWNER notification always uses the English definition —
+   * only visitor-facing strings localize.
+   */
+  es?: {
+    title?: string;
+    intro?: string;
+    submitLabel?: string;
+    successMessage?: string;
+    autoresponder?: { subject: string; body: string };
+    fields?: Record<string, { label?: string; placeholder?: string }>;
+  };
 };
 
 /**
@@ -64,6 +77,32 @@ export type FormClientDef = Pick<FormDef, "slug" | "fields" | "submitLabel">;
 /** Strip server-only fields so a form def can cross the Server→Client boundary. */
 export function toClientDef(def: FormDef): FormClientDef {
   return { slug: def.slug, fields: def.fields, submitLabel: def.submitLabel };
+}
+
+/**
+ * Resolves a definition for a locale: Spanish strings overlay English,
+ * field-by-field, with full fallback. Returns the def unchanged for "en".
+ */
+export function resolveFormDef(def: FormDef, locale: string): FormDef {
+  if (locale !== "es" || !def.es) return def;
+  const overlay = def.es;
+  return {
+    ...def,
+    title: overlay.title ?? def.title,
+    intro: overlay.intro ?? def.intro,
+    submitLabel: overlay.submitLabel ?? def.submitLabel,
+    successMessage: overlay.successMessage ?? def.successMessage,
+    autoresponder: overlay.autoresponder ?? def.autoresponder,
+    fields: def.fields.map((field) => {
+      const patch = overlay.fields?.[field.name];
+      if (!patch) return field;
+      return {
+        ...field,
+        label: patch.label ?? field.label,
+        ...("placeholder" in field ? { placeholder: patch.placeholder ?? field.placeholder } : {}),
+      };
+    }),
+  };
 }
 
 /** Narrowing helpers used by the renderer and the engine action. */

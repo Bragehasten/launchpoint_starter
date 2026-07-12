@@ -182,6 +182,16 @@ type ServiceAreaRow = {
   updated_at: string;
 };
 
+type TranslationRow = {
+  id: string;
+  entity: string;
+  entity_id: string;
+  locale: string;
+  field: string;
+  value: string;
+  updated_at: string;
+};
+
 type PromotionRow = {
   id: string;
   title: string;
@@ -280,6 +290,10 @@ export type Database = {
       locations: TableShape<LocationRow, "name" | "address" | "slug">;
       location_reviews: TableShape<LocationReviewRow, "location_id" | "author" | "rating" | "body">;
       service_areas: TableShape<ServiceAreaRow, "name" | "slug" | "intro">;
+      translations: TableShape<
+        TranslationRow,
+        "entity" | "entity_id" | "locale" | "field" | "value"
+      >;
       promotions: TableShape<PromotionRow, "title" | "body">;
       gallery_albums: TableShape<GalleryAlbumRow, "slug" | "title">;
       gallery_items: TableShape<GalleryItemRow, "album_id" | "media_path">;
@@ -312,4 +326,5 @@ export type MediaItem = MediaRow;
 export type FormSubmission = FormSubmissionRow;
 export type LocationReview = LocationReviewRow;
 export type ServiceArea = ServiceAreaRow;
+export type Translation = TranslationRow;
 export type NewsletterSubscriber = NewsletterSubscriberRow;

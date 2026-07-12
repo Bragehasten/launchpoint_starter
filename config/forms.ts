@@ -37,6 +37,16 @@ export const formRegistry: Record<string, FormDef> = {
     submitLabel: "Send message",
     successMessage: "Thanks — we'll get back to you shortly.",
     subject: (v) => `New contact message from ${v.name}`,
+    es: {
+      title: "Contáctanos",
+      submitLabel: "Enviar mensaje",
+      successMessage: "Gracias — te responderemos pronto.",
+      fields: {
+        name: { label: "Nombre" },
+        email: { label: "Correo electrónico" },
+        message: { label: "Mensaje", placeholder: "¿En qué podemos ayudarte?" },
+      },
+    },
   },
 
   quote: {
@@ -57,6 +67,21 @@ export const formRegistry: Record<string, FormDef> = {
     submitLabel: "Request quote",
     successMessage: "Thanks — we'll get back to you with a quote shortly.",
     subject: (v) => `New quote request from ${v.name}`,
+    es: {
+      title: "Solicita un presupuesto",
+      intro: "Cuéntanos sobre el trabajo y te enviaremos un presupuesto gratis.",
+      submitLabel: "Solicitar presupuesto",
+      successMessage: "Gracias — te enviaremos un presupuesto pronto.",
+      fields: {
+        name: { label: "Nombre" },
+        email: { label: "Correo electrónico" },
+        phone: { label: "Teléfono" },
+        details: {
+          label: "Detalles del proyecto",
+          placeholder: "¿Qué necesitas? Tamaño aproximado, plazos, lo que sea útil.",
+        },
+      },
+    },
   },
 
   "booking-request": {
@@ -87,6 +112,24 @@ export const formRegistry: Record<string, FormDef> = {
     autoresponder: {
       subject: "We got your appointment request",
       body: "Thanks for reaching out — we've received your appointment request and will confirm a time with you shortly.",
+    },
+    es: {
+      title: "Solicita una cita",
+      intro: "Dinos cuándo te viene bien y confirmaremos por correo o teléfono.",
+      submitLabel: "Solicitar cita",
+      successMessage: "Solicitud recibida — confirmaremos tu cita en breve.",
+      autoresponder: {
+        subject: "Recibimos tu solicitud de cita",
+        body: "Gracias por contactarnos — hemos recibido tu solicitud y confirmaremos un horario contigo en breve.",
+      },
+      fields: {
+        name: { label: "Nombre" },
+        email: { label: "Correo electrónico" },
+        phone: { label: "Teléfono" },
+        preferred_date: { label: "Fecha preferida" },
+        preferred_time: { label: "Hora preferida" },
+        notes: { label: "Notas" },
+      },
     },
   },
 
@@ -120,6 +163,27 @@ export const formRegistry: Record<string, FormDef> = {
       subject: "We received your application",
       body: "Thanks for applying — we review every application and will reach out if there's a fit.",
     },
+    es: {
+      title: "Trabaja con nosotros",
+      intro: "Cuéntanos sobre ti y adjunta tu currículum si lo tienes.",
+      submitLabel: "Enviar solicitud",
+      successMessage: "Solicitud recibida — ¡gracias por tu interés!",
+      autoresponder: {
+        subject: "Recibimos tu solicitud",
+        body: "Gracias por postularte — revisamos cada solicitud y te contactaremos si hay una vacante adecuada.",
+      },
+      fields: {
+        name: { label: "Nombre" },
+        email: { label: "Correo electrónico" },
+        phone: { label: "Teléfono" },
+        position: { label: "Puesto de interés" },
+        experience: {
+          label: "Experiencia",
+          placeholder: "Un resumen breve — o comparte tu LinkedIn.",
+        },
+        resume: { label: "Currículum (PDF o Word, máx. 5 MB)" },
+      },
+    },
   },
 
   catering: {
@@ -142,6 +206,23 @@ export const formRegistry: Record<string, FormDef> = {
     submitLabel: "Send inquiry",
     successMessage: "Inquiry received — we'll follow up with menu options and pricing.",
     subject: (v) => `Catering inquiry for ${v.event_date} (${v.guest_count} guests)`,
+    es: {
+      title: "Consulta de catering",
+      intro: "Eventos, oficinas, bodas — cuéntanos sobre el tuyo.",
+      submitLabel: "Enviar consulta",
+      successMessage: "Consulta recibida — te enviaremos opciones de menú y precios.",
+      fields: {
+        name: { label: "Nombre" },
+        email: { label: "Correo electrónico" },
+        phone: { label: "Teléfono" },
+        event_date: { label: "Fecha del evento" },
+        guest_count: { label: "Número de invitados" },
+        details: {
+          label: "Detalles del evento",
+          placeholder: "Lugar, tipo de servicio, necesidades dietéticas…",
+        },
+      },
+    },
   },
 
   consultation: {
@@ -165,6 +246,25 @@ export const formRegistry: Record<string, FormDef> = {
     autoresponder: {
       subject: "Your consultation request",
       body: "Thanks — we've received your consultation request and will reach out shortly to find a time.",
+    },
+    es: {
+      title: "Agenda una consulta",
+      intro: "Una conversación sin compromiso sobre lo que buscas.",
+      submitLabel: "Solicitar consulta",
+      successMessage: "Solicitud recibida — te contactaremos para agendar tu consulta.",
+      autoresponder: {
+        subject: "Tu solicitud de consulta",
+        body: "Gracias — hemos recibido tu solicitud de consulta y te contactaremos pronto para encontrar un horario.",
+      },
+      fields: {
+        name: { label: "Nombre" },
+        email: { label: "Correo electrónico" },
+        phone: { label: "Teléfono" },
+        topic: {
+          label: "¿De qué se trata?",
+          placeholder: "Cuanto más contexto, más útil será la consulta.",
+        },
+      },
     },
   },
 
@@ -190,6 +290,23 @@ export const formRegistry: Record<string, FormDef> = {
     submitLabel: "Request emergency service",
     successMessage: "Request received — we'll call you back as fast as we can.",
     subject: (v) => `Emergency service: ${(v.issue ?? "").slice(0, 60)}`,
+    es: {
+      title: "Servicio de emergencia",
+      intro:
+        "¿Tubería rota? ¿Sin aire en pleno agosto? Descríbelo brevemente — priorizamos estas solicitudes.",
+      submitLabel: "Solicitar servicio de emergencia",
+      successMessage: "Solicitud recibida — te llamaremos lo antes posible.",
+      fields: {
+        name: { label: "Nombre" },
+        phone: { label: "Teléfono" },
+        email: { label: "Correo electrónico" },
+        address: { label: "Dirección del servicio" },
+        issue: {
+          label: "¿Qué está pasando?",
+          placeholder: "Corto y específico es mejor que largo y cortés.",
+        },
+      },
+    },
   },
 };
 

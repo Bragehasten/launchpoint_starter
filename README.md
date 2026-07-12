@@ -66,6 +66,7 @@ npm run test:e2e     # Playwright smoke suite (against a prod build)
 | [docs/locations.md](docs/locations.md)                           | Multi-location: landing pages, reviews, local SEO          |
 | [docs/service-areas.md](docs/service-areas.md)                   | Coverage pages for the trades; doorway-page rules          |
 | [docs/ai.md](docs/ai.md)                                         | AI Studio: presets, guardrails, area-draft flow            |
+| [docs/i18n.md](docs/i18n.md)                                     | English + Spanish: /es mirror, translations, AI translate  |
 | [docs/performance.md](docs/performance.md)                       | Hardening inventory + Lighthouse procedure                 |
 | [docs/roadmap.md](docs/roadmap.md)                               | The 20 milestones (v1–v3) that built this                  |
 | [docs/framework-backlog.md](docs/framework-backlog.md)           | Deliberate future work — read before building anything new |

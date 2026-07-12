@@ -1,8 +1,14 @@
+import { getLocale } from "@/lib/i18n";
+import { localizeRecord, localizeRecords } from "@/lib/i18n/content";
 import { createClient } from "@/lib/supabase/server";
 import type { Database, LocationReview, ServiceArea } from "@/types/database";
 
 /**
- * Capability read layer. RLS already hides inactive rows from anonymous
+ * Capability read layer — PUBLIC pages only (admin queries its own
+ * selects, always English base). Results are localized for the current
+ * request via the translations overlay; English is the fallback.
+ *
+ * Original note: RLS already hides inactive rows from anonymous
  * visitors; ordering is by sort_order then name/title for stable output.
  */
 
@@ -20,7 +26,7 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
     .select("*")
     .order("sort_order")
     .order("name");
-  return data ?? [];
+  return localizeRecords("team_members", data ?? [], await getLocale());
 }
 
 export type ServiceGroupWithServices = ServiceGroup & { services: Service[] };
@@ -32,9 +38,14 @@ export async function getServiceGroups(): Promise<ServiceGroupWithServices[]> {
     supabase.from("services").select("*").order("sort_order").order("name"),
   ]);
 
-  return (groups ?? []).map((group) => ({
+  const locale = await getLocale();
+  const [localizedGroups, localizedServices] = await Promise.all([
+    localizeRecords("service_groups", groups ?? [], locale),
+    localizeRecords("services", services ?? [], locale),
+  ]);
+  return localizedGroups.map((group) => ({
     ...group,
-    services: (services ?? []).filter((service) => service.group_id === group.id),
+    services: localizedServices.filter((service) => service.group_id === group.id),
   }));
 }
 
@@ -45,7 +56,7 @@ export async function getLocations(): Promise<Location[]> {
     .select("*")
     .order("is_primary", { ascending: false })
     .order("sort_order");
-  return data ?? [];
+  return localizeRecords("locations", data ?? [], await getLocale());
 }
 
 export async function getLocationBySlug(slug: string): Promise<Location | null> {
@@ -56,7 +67,7 @@ export async function getLocationBySlug(slug: string): Promise<Location | null> 
     .eq("slug", slug)
     .eq("active", true)
     .maybeSingle();
-  return data;
+  return localizeRecord("locations", data, await getLocale());
 }
 
 export async function getLocationReviews(locationId: string): Promise<LocationReview[]> {
@@ -81,7 +92,7 @@ export async function getTeamAtLocation(locationId: string): Promise<TeamMember[
     .or(`location_id.eq.${locationId},location_id.is.null`)
     .order("sort_order")
     .order("name");
-  return data ?? [];
+  return localizeRecords("team_members", data ?? [], await getLocale());
 }
 
 export async function getPromotions(): Promise<Promotion[]> {
@@ -91,7 +102,7 @@ export async function getPromotions(): Promise<Promotion[]> {
     .select("*")
     .order("sort_order")
     .order("created_at", { ascending: false });
-  return data ?? [];
+  return localizeRecords("promotions", data ?? [], await getLocale());
 }
 
 /** Formats cents for display; null price falls back to the note or em dash. */
@@ -113,7 +124,7 @@ export async function getServiceAreas(): Promise<ServiceArea[]> {
     .eq("active", true)
     .order("sort_order")
     .order("name");
-  return data ?? [];
+  return localizeRecords("service_areas", data ?? [], await getLocale());
 }
 
 export async function getServiceAreaBySlug(slug: string): Promise<ServiceArea | null> {
@@ -124,5 +135,5 @@ export async function getServiceAreaBySlug(slug: string): Promise<ServiceArea | 
     .eq("slug", slug)
     .eq("active", true)
     .maybeSingle();
-  return data;
+  return localizeRecord("service_areas", data, await getLocale());
 }

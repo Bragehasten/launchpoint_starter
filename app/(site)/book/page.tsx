@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { notFound } from "next/navigation";
 import { CircleCheck } from "lucide-react";
 
@@ -9,6 +9,7 @@ import { Container, Section } from "@/components/shared/container";
 import { buttonVariants } from "@/components/ui/button";
 import { getCapability } from "@/lib/capabilities";
 import { getBookingSettings, getSlotsForDay } from "@/lib/booking/availability";
+import { getDict, interpolate } from "@/lib/i18n";
 import { createMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
@@ -69,6 +70,7 @@ export default async function BookPage({
     );
   }
 
+  const { dict, locale } = await getDict();
   const { date, slot, booked } = await searchParams;
   const day = parseDay(date, settings.maxAdvanceDays);
   const slots = await getSlotsForDay(day);
@@ -84,7 +86,7 @@ export default async function BookPage({
     ? slots.find((s) => s.available && s.startsAt.toISOString() === slot)
     : undefined;
 
-  const dayLabel = day.toLocaleDateString("en-US", {
+  const dayLabel = day.toLocaleDateString(locale === "es" ? "es-US" : "en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -96,7 +98,9 @@ export default async function BookPage({
         <SectionHeading
           eyebrow={settings.label}
           title={settings.label ?? "Book an appointment"}
-          description={`${settings.slotMinutes}-minute appointments. Pick a day and time.`}
+          description={interpolate(dict.booking.minuteAppointments, {
+            minutes: settings.slotMinutes,
+          })}
         />
 
         {booked ? (
@@ -105,7 +109,7 @@ export default async function BookPage({
             className="flex items-center gap-2 rounded-md bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400"
           >
             <CircleCheck className="size-4 shrink-0" aria-hidden="true" />
-            Booking requested — we&apos;ll confirm by email shortly.
+            {dict.booking.requested}
           </p>
         ) : null}
 
@@ -120,26 +124,26 @@ export default async function BookPage({
                 day <= today && "pointer-events-none opacity-50",
               )}
             >
-              ← Previous
+              ← {dict.booking.previous}
             </Link>
             <h2 className="text-center font-semibold">{dayLabel}</h2>
             <Link
               href={`/book?date=${toDateParam(nextDay)}`}
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              Next →
+              {dict.booking.next} →
             </Link>
           </div>
 
           {slots.length === 0 ? (
             <p className="text-muted-foreground rounded-md border border-dashed p-10 text-center text-sm">
-              Closed this day — try another date.
+              {dict.booking.closedThisDay}
             </p>
           ) : (
             <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {slots.map((s) => {
                 const iso = s.startsAt.toISOString();
-                const label = s.startsAt.toLocaleTimeString("en-US", {
+                const label = s.startsAt.toLocaleTimeString(locale === "es" ? "es-US" : "en-US", {
                   hour: "numeric",
                   minute: "2-digit",
                 });
@@ -179,14 +183,18 @@ export default async function BookPage({
 
         {selectedSlot ? (
           <BookingForm
+            labels={dict.booking}
             startsAt={selectedSlot.startsAt.toISOString()}
-            slotLabel={`${dayLabel} at ${selectedSlot.startsAt.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-            })}`}
+            slotLabel={`${dayLabel} at ${selectedSlot.startsAt.toLocaleTimeString(
+              locale === "es" ? "es-US" : "en-US",
+              {
+                hour: "numeric",
+                minute: "2-digit",
+              },
+            )}`}
           />
         ) : (
-          <p className="text-muted-foreground text-sm">Select a time above to continue.</p>
+          <p className="text-muted-foreground text-sm">{dict.booking.selectTime}</p>
         )}
       </Container>
     </Section>

@@ -15,6 +15,11 @@ export type NavItem = {
 
 export type SiteConfig = {
   name: string;
+  /**
+   * Languages this site serves. English is always first-class at the root;
+   * adding "es" turns on the /es mirror + language switcher (docs/i18n.md).
+   */
+  locales?: ("en" | "es")[];
   /** Short description used as the default meta description. */
   description: string;
   /** Absolute production URL, no trailing slash. */
@@ -43,17 +48,17 @@ export type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  name: "LaunchPoint",
-  description: "A production-grade website foundation: fast, accessible, and ready to ship.",
+  locales: ["en", "es"],
+  name: "cutsbyluis",
+  description: "barber in hialeah",
   url: "https://example.com",
   ogImage: "/og.png",
   locale: "en_US",
   mainNav: [
     { title: "Home", href: "/" },
-    { title: "Services", href: "/services" },
+    { title: "Services", href: "/menu" },
     { title: "About", href: "/about" },
     { title: "Gallery", href: "/gallery" },
-    { title: "Blog", href: "/blog" },
     { title: "Contact", href: "/contact" },
   ],
   footerNav: [
@@ -63,7 +68,7 @@ export const siteConfig: SiteConfig = {
     { title: "Cookies", href: "/cookies" },
   ],
   links: {},
-  headerCta: { title: "Get started", href: "/contact" },
+  headerCta: { title: "Book now", href: "/book" },
   features: {
     darkModeToggle: true,
     newsletter: true,

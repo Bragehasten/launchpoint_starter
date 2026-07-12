@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

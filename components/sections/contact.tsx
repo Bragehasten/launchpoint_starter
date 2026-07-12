@@ -2,7 +2,8 @@ import { Mail, MapPin, Phone } from "lucide-react";
 
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { formRegistry } from "@/config/forms";
-import { toClientDef } from "@/lib/forms/types";
+import { resolveFormDef, toClientDef } from "@/lib/forms/types";
+import { getLocale } from "@/lib/i18n";
 import { Container, Section } from "@/components/shared/container";
 import { FadeIn } from "@/components/shared/motion";
 
@@ -19,7 +20,7 @@ export type ContactProps = {
 };
 
 /** Contact section: details column + the contact form. */
-export function Contact({ eyebrow, title, description, details }: ContactProps) {
+export async function Contact({ eyebrow, title, description, details }: ContactProps) {
   return (
     <Section>
       <Container className="grid gap-12 lg:grid-cols-[1fr_1.2fr]">
@@ -62,7 +63,9 @@ export function Contact({ eyebrow, title, description, details }: ContactProps) 
           ) : null}
         </FadeIn>
         <FadeIn delay={0.1}>
-          <DynamicForm def={toClientDef(formRegistry.contact!)} />
+          <DynamicForm
+            def={toClientDef(resolveFormDef(formRegistry.contact!, await getLocale()))}
+          />
         </FadeIn>
       </Container>
     </Section>

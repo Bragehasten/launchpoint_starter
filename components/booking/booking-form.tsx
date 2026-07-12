@@ -28,7 +28,19 @@ type BookingFormProps = {
   slotLabel: string;
 };
 
-export function BookingForm({ startsAt, slotLabel }: BookingFormProps) {
+export type BookingLabels = {
+  name: string;
+  email: string;
+  phoneOptional: string;
+  notesOptional: string;
+  confirm: string;
+};
+
+export function BookingForm({
+  startsAt,
+  slotLabel,
+  labels,
+}: BookingFormProps & { labels: BookingLabels }) {
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
   const form = useForm<FormValues>({
@@ -66,19 +78,24 @@ export function BookingForm({ startsAt, slotLabel }: BookingFormProps) {
         <HoneypotField />
         <p className="bg-muted rounded-md px-3 py-2 text-sm font-medium">{slotLabel}</p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <TextField<FormValues> name="name" label="Name" autoComplete="name" />
-          <TextField<FormValues> name="email" label="Email" type="email" autoComplete="email" />
+          <TextField<FormValues> name="name" label={labels.name} autoComplete="name" />
+          <TextField<FormValues>
+            name="email"
+            label={labels.email}
+            type="email"
+            autoComplete="email"
+          />
         </div>
         <TextField<FormValues>
           name="phone"
-          label="Phone (optional)"
+          label={labels.phoneOptional}
           type="tel"
           autoComplete="tel"
         />
-        <TextareaField<FormValues> name="notes" label="Notes (optional)" rows={3} />
+        <TextareaField<FormValues> name="notes" label={labels.notesOptional} rows={3} />
         <Button type="submit" disabled={pending} className="w-fit">
           {pending ? <Loader2 className="animate-spin" /> : null}
-          Confirm booking
+          {labels.confirm}
         </Button>
       </form>
     </FormProvider>

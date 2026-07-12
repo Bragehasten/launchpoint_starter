@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 

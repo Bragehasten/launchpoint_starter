@@ -8,7 +8,8 @@ import { FormSubmissionEmail } from "@/emails/form-submission";
 import { sendEmail } from "@/lib/email/send";
 import { env } from "@/lib/env";
 import { buildFormSchema } from "@/lib/forms/schema";
-import { isFileField } from "@/lib/forms/types";
+import { isFileField, resolveFormDef } from "@/lib/forms/types";
+import { getLocale } from "@/lib/i18n";
 import { createLogger } from "@/lib/log";
 import { rateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
@@ -37,8 +38,12 @@ const ALLOWED_MIME = new Set([
 
 export async function submitEngineForm(formData: FormData): Promise<FormActionResult> {
   const slug = String(formData.get("_form") ?? "");
-  const def = getFormDef(slug);
-  if (!def) return { success: false, message: "This form is not available." };
+  const baseDef = getFormDef(slug);
+  if (!baseDef) return { success: false, message: "This form is not available." };
+  // Visitor-facing strings (labels in validation errors, success message,
+  // autoresponder) follow the request locale; the OWNER notification below
+  // deliberately uses the English definition.
+  const def = resolveFormDef(baseDef, await getLocale());
 
   const headerList = await headers();
   const ip = headerList.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -109,8 +114,8 @@ export async function submitEngineForm(formData: FormData): Promise<FormActionRe
   // Owner notification. Emergency forms take the loud path: URGENT subject.
   // SMS seam (backlog #24): trigger a Twilio/etc. send HERE for def.emergency.
   if (env.CONTACT_EMAIL) {
-    const subject = def.subject?.(parsed.data) ?? `New ${def.title} submission`;
-    const rows = def.fields
+    const subject = baseDef.subject?.(parsed.data) ?? `New ${baseDef.title} submission`;
+    const rows = baseDef.fields
       .filter((f) => !isFileField(f))
       .map((f) => ({ label: f.label, value: parsed.data[f.name] ?? "—" }));
     const attachments = Object.keys(data).filter((k) => k.endsWith("_attachment"));
@@ -124,7 +129,7 @@ export async function submitEngineForm(formData: FormData): Promise<FormActionRe
       to: env.CONTACT_EMAIL,
       subject: def.emergency ? `🚨 URGENT — ${subject}` : subject,
       replyTo: email,
-      react: <FormSubmissionEmail formTitle={def.title} rows={rows} />,
+      react: <FormSubmissionEmail formTitle={baseDef.title} rows={rows} />,
     });
   }
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { notFound } from "next/navigation";
 import { ArrowRight, MapPin } from "lucide-react";
 
@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { clientConfig } from "@/config/client";
 import { getCapability } from "@/lib/capabilities";
 import { getServiceAreas } from "@/lib/capabilities/queries";
+import { getLocale } from "@/lib/i18n";
 import { createMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,7 +25,11 @@ export default async function ServiceAreasPage() {
   if (!capability.enabled) notFound();
 
   const areas = await getServiceAreas();
-  const noun = capability.serviceNoun ?? clientConfig.module.label;
+  const locale = await getLocale();
+  const noun =
+    (locale === "es" ? capability.serviceNounEs : undefined) ??
+    capability.serviceNoun ??
+    clientConfig.module.label;
 
   return (
     <Section>

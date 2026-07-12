@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/shared/legal-page";
 import { siteConfig } from "@/config/site";
 import { createMetadata } from "@/lib/seo";
+import { getLocale } from "@/lib/i18n";
 
 export const metadata: Metadata = createMetadata({
   title: "Privacy Policy",
@@ -14,7 +15,57 @@ export const metadata: Metadata = createMetadata({
  * TEMPLATE — review with the client (and their counsel where appropriate)
  * before launch. Placeholders are marked [EDIT].
  */
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const locale = await getLocale();
+
+  if (locale === "es") {
+    return (
+      <LegalPage title="Política de privacidad" lastUpdated="[EDITAR: fecha]" lastUpdatedLabel="Última actualización">
+        <h2>Quiénes somos</h2>
+        <p>
+          {siteConfig.name} (&ldquo;nosotros&rdquo;) opera {siteConfig.url}. Esta política explica qué
+          información personal recopilamos y cómo la usamos. ¿Preguntas? Escríbenos a [EDITAR: correo].
+        </p>
+
+        <h2>Información que recopilamos</h2>
+        <p>
+          <strong>Información que nos proporcionas.</strong> Cuando envías un formulario de contacto,
+          te suscribes a nuestro boletín o creas una cuenta, recopilamos los datos que proporcionas:
+          normalmente tu nombre, correo electrónico y mensaje.
+        </p>
+        <p>
+          <strong>Información recopilada automáticamente.</strong> Usamos analíticas respetuosas con la
+          privacidad para entender cómo se usa el sitio (páginas visitadas, ubicación aproximada, tipo
+          de dispositivo). Consulta nuestra <a href="/cookies">Política de cookies</a> para más detalles.
+        </p>
+
+        <h2>Cómo la usamos</h2>
+        <p>
+          Para responder a tus consultas, prestar los servicios que solicitas, enviar boletines a los
+          que te suscribiste (puedes cancelar en cualquier momento) y mejorar el sitio. No vendemos tu
+          información personal.
+        </p>
+
+        <h2>Dónde se almacena</h2>
+        <p>
+          Los datos se almacenan con nuestros proveedores de infraestructura (Supabase para la base de
+          datos, Vercel para el alojamiento, Resend para el correo). Cada uno está sujeto a sus propios
+          compromisos de seguridad y privacidad.
+        </p>
+
+        <h2>Tus derechos</h2>
+        <p>
+          Puedes solicitar una copia de tus datos o pedirnos que los eliminemos en cualquier momento
+          escribiendo a [EDITAR: correo]. Según dónde vivas, podrías tener derechos adicionales (GDPR,
+          CCPA).
+        </p>
+
+        <h2>Cambios</h2>
+        <p>Actualizaremos esta página cuando cambien nuestras prácticas y revisaremos la fecha anterior.</p>
+      </LegalPage>
+    );
+  }
+
   return (
     <LegalPage title="Privacy Policy" lastUpdated="[EDIT: date]">
       <h2>Who we are</h2>

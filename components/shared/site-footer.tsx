@@ -1,10 +1,12 @@
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { MapPin, Phone } from "lucide-react";
 
 import { Container } from "@/components/shared/container";
 import { NewsletterForm } from "@/components/shared/newsletter-form";
 import { siteConfig } from "@/config/site";
 import { isCapabilityEnabled } from "@/lib/capabilities";
+import { getDict, interpolate } from "@/lib/i18n";
+import { translateNavTitle } from "@/lib/i18n/nav";
 import { getLocations } from "@/lib/capabilities/queries";
 
 /**
@@ -13,6 +15,7 @@ import { getLocations } from "@/lib/capabilities/queries";
  * to /locations when there are more.
  */
 export async function SiteFooter() {
+  const { locale, dict } = await getDict();
   const locations = isCapabilityEnabled("locations") ? await getLocations() : [];
   const primary = locations.find((l) => l.is_primary) ?? locations[0] ?? null;
 
@@ -46,7 +49,7 @@ export async function SiteFooter() {
                 ) : null}
                 {locations.length > 1 ? (
                   <Link href="/locations" className="text-primary hover:underline">
-                    All {locations.length} locations
+                    {interpolate(dict.footer.allLocations, { count: locations.length })}
                   </Link>
                 ) : null}
               </address>
@@ -54,14 +57,14 @@ export async function SiteFooter() {
           </div>
           {siteConfig.features.newsletter ? (
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium">Subscribe to our newsletter</p>
+              <p className="text-sm font-medium">{dict.footer.newsletterTitle}</p>
               <NewsletterForm />
             </div>
           ) : null}
         </div>
         <div className="flex flex-col items-center justify-between gap-4 border-t pt-6 sm:flex-row">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+            © {new Date().getFullYear()} {siteConfig.name}. {dict.footer.allRightsReserved}
           </p>
           <nav aria-label="Footer">
             <ul className="flex items-center gap-6">
@@ -71,7 +74,7 @@ export async function SiteFooter() {
                     href={item.href}
                     className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                   >
-                    {item.title}
+                    {translateNavTitle(item.title, locale)}
                   </Link>
                 </li>
               ))}

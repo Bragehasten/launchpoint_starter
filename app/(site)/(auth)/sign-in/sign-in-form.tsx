@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 
 import { signIn, signInWithMagicLink } from "@/actions/auth";
 import { AuthField, AuthForm, AuthSubmit } from "@/components/shared/auth-form";

@@ -164,3 +164,17 @@ SEO pair because location/area pages embed forms. Locations (17) before areas (1
 — they share the local-SEO plumbing, and the physical case is stricter. AI (19)
 lands after areas because unique per-area copy is its highest-leverage job. The
 wizard (20) ties every prior decision into the day-one experience.
+
+---
+
+# v4 — Bilingual (M21)
+
+## Milestone 21 — English + Spanish
+
+Per-client opt-in (`siteConfig.locales`). /es URL mirror via middleware
+rewrite (no route moves — the app's per-request rendering makes
+locale-by-header possible). Typed EN/ES dictionaries, bilingual form
+definitions, generic translations table overlaying capability content with
+per-field English fallback, AI batch translation in AI Studio, language
+switcher, hreflang + dual sitemap.
+_Done._

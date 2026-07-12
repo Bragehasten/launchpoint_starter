@@ -46,6 +46,17 @@ export type CrudField = {
   /** For number fields shown in dollars etc. */
   step?: string;
   hint?: string;
+  /** Checkbox column display labels (default "Yes" / "No"). */
+  trueLabel?: string;
+  falseLabel?: string;
+  /**
+   * Declarative cell/form formatting. "currency-cents" stores cents but shows
+   * dollars ($X.XX) and edits in dollars; "date-short" renders an ISO date as
+   * a short localized date.
+   */
+  format?: "currency-cents" | "date-short";
+  /** For a "currency-cents" column, the field whose raw string shows when the amount is null. */
+  fallbackField?: string;
 };
 
 export type CrudRecord = { id: string } & Record<string, unknown>;
@@ -58,10 +69,6 @@ type CrudManagerProps = {
   columns: string[];
   upsertAction: (id: string | null, values: unknown) => Promise<CrudResult>;
   deleteAction: (id: string) => Promise<CrudResult>;
-  /** Maps a raw record to form defaults (e.g. cents → dollars). */
-  toFormValues?: (record: CrudRecord) => Record<string, unknown>;
-  /** Formats a cell for display. */
-  renderCell?: (record: CrudRecord, column: string) => React.ReactNode;
 };
 
 function defaultFor(field: CrudField): unknown {
@@ -77,10 +84,46 @@ export function CrudManager({
   columns,
   upsertAction,
   deleteAction,
-  toFormValues,
-  renderCell,
 }: CrudManagerProps) {
   const router = useRouter();
+  const fieldByName = Object.fromEntries(fields.map((field) => [field.name, field]));
+
+  /** Maps a raw record to form defaults (cents → dollars, objects → JSON strings). */
+  function computeFormValues(record: CrudRecord): Record<string, unknown> {
+    const values: Record<string, unknown> = { ...record };
+    for (const field of fields) {
+      const value = record[field.name];
+      if (field.type === "json") {
+        values[field.name] = JSON.stringify(value ?? [], null, 0);
+      } else if (field.format === "currency-cents") {
+        values[field.name] = typeof value === "number" ? value / 100 : null;
+      }
+    }
+    return values;
+  }
+
+  /** Formats a cell for display from serializable field metadata. */
+  function formatCell(record: CrudRecord, column: string): React.ReactNode {
+    const field = fieldByName[column];
+    const raw = record[column];
+    if (!field) return String(raw ?? "—");
+
+    if (field.type === "checkbox")
+      return raw ? (field.trueLabel ?? "Yes") : (field.falseLabel ?? "No");
+    if (field.type === "select")
+      return field.options?.find((option) => option.value === String(raw))?.label ?? "—";
+    if (field.format === "currency-cents") {
+      if (typeof raw === "number") return `$${(raw / 100).toFixed(2)}`;
+      const fallback = field.fallbackField ? record[field.fallbackField] : undefined;
+      return typeof fallback === "string" && fallback ? fallback : "—";
+    }
+    if (field.format === "date-short")
+      return raw
+        ? new Date(String(raw)).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        : "—";
+    return String(raw ?? "—");
+  }
+
   const [pending, startTransition] = React.useTransition();
   const [open, setOpen] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -94,7 +137,7 @@ export function CrudManager({
 
   function openEdit(record: CrudRecord) {
     setEditingId(record.id);
-    setValues(toFormValues ? toFormValues(record) : { ...record });
+    setValues(computeFormValues(record));
     setOpen(true);
   }
 
@@ -128,8 +171,6 @@ export function CrudManager({
     });
   }
 
-  const fieldByName = Object.fromEntries(fields.map((field) => [field.name, field]));
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
@@ -157,9 +198,7 @@ export function CrudManager({
               records.map((record) => (
                 <TableRow key={record.id}>
                   {columns.map((column) => (
-                    <TableCell key={column}>
-                      {renderCell ? renderCell(record, column) : String(record[column] ?? "—")}
-                    </TableCell>
+                    <TableCell key={column}>{formatCell(record, column)}</TableCell>
                   ))}
                   <TableCell>
                     <div className="flex justify-end gap-1">

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";

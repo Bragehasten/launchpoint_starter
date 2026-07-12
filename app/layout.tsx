@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
 
 import { Analytics } from "@/components/shared/analytics";
+import { LocaleProvider } from "@/components/shared/locale-provider";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
 import { activeThemeName } from "@/config/theme";
 import { env } from "@/lib/env";
+import { getLocale } from "@/lib/i18n";
 import { fontMono, fontSans } from "@/lib/fonts";
 
 import "./globals.css";
@@ -59,16 +60,19 @@ export default async function RootLayout({
   // time and `strict-dynamic` would then block all of its JS. Reading headers()
   // (rather than `export const dynamic = "force-dynamic"`) avoids eager
   // streaming, so programmatic notFound() still returns a real 404 status.
-  await headers();
+  // getLocale() reads headers too, so it doubles as the dynamic opt-in.
+  const locale = await getLocale();
 
   return (
-    <html lang="en" data-theme={activeThemeName} suppressHydrationWarning>
+    <html lang={locale} data-theme={activeThemeName} suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans`}>
-        <ThemeProvider>
-          {children}
-          <Toaster />
-          <Analytics />
-        </ThemeProvider>
+        <LocaleProvider locale={locale}>
+          <ThemeProvider>
+            {children}
+            <Toaster />
+            <Analytics />
+          </ThemeProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

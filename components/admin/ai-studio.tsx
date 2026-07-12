@@ -4,7 +4,7 @@ import * as React from "react";
 import { Check, Copy, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-import { createServiceAreaDraft, runAiTask } from "@/actions/ai";
+import { createServiceAreaDraft, runAiTask, translateEntityToSpanish } from "@/actions/ai";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,9 +28,12 @@ export type TaskMeta = {
 export function AiStudio({
   tasks,
   serviceAreasEnabled,
+  translatableEntities,
 }: {
   tasks: TaskMeta[];
   serviceAreasEnabled: boolean;
+  /** Entity types offered for ES batch translation ([] = monolingual site). */
+  translatableEntities: { value: string; label: string }[];
 }) {
   const [taskKey, setTaskKey] = React.useState(tasks[0]?.key ?? "");
   const [topic, setTopic] = React.useState("");
@@ -137,6 +140,7 @@ export function AiStudio({
       </Card>
 
       {serviceAreasEnabled ? <AreaDraftPanel /> : null}
+      {translatableEntities.length > 0 ? <TranslatePanel entities={translatableEntities} /> : null}
     </div>
   );
 }
@@ -208,6 +212,60 @@ function AreaDraftPanel() {
         <Button onClick={onCreate} disabled={pending || !name.trim()} className="w-fit">
           {pending ? <Loader2 className="animate-spin" /> : <Sparkles />}
           Create draft
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Batch-fills missing Spanish translations for one content type at a time. */
+function TranslatePanel({ entities }: { entities: { value: string; label: string }[] }) {
+  const [entity, setEntity] = React.useState(entities[0]?.value ?? "");
+  const [pending, startTransition] = React.useTransition();
+
+  function onTranslate() {
+    startTransition(async () => {
+      const result = await translateEntityToSpanish({ entity });
+      if (result.success) {
+        toast.success(
+          result.remaining > 0
+            ? `Translated ${result.translated} — ${result.remaining} left, run again to continue.`
+            : `Translated ${result.translated}. This content type is fully in Spanish.`,
+        );
+      } else {
+        toast.error(result.message);
+      }
+    });
+  }
+
+  return (
+    <Card className="lg:col-span-2">
+      <CardHeader>
+        <CardTitle className="heading">Translate content to Spanish</CardTitle>
+        <CardDescription>
+          Fills missing Spanish for the selected content type (batches of 8 — re-run until done).
+          English stays the source of truth; review the results on the /es site.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-wrap items-end gap-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="translate-entity">Content type</Label>
+          <select
+            id="translate-entity"
+            value={entity}
+            onChange={(e) => setEntity(e.target.value)}
+            className="border-input bg-background focus-visible:ring-ring/50 h-9 rounded-md border px-3 text-sm shadow-xs focus-visible:ring-2 focus-visible:outline-none"
+          >
+            {entities.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Button onClick={onTranslate} disabled={pending || !entity}>
+          {pending ? <Loader2 className="animate-spin" /> : <Sparkles />}
+          Translate batch
         </Button>
       </CardContent>
     </Card>

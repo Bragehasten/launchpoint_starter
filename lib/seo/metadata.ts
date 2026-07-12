@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { siteConfig } from "@/config/site";
+import { isMultilingual } from "@/lib/i18n/config";
 
 /**
  * Metadata factory. Every page builds its metadata through this helper so
@@ -33,11 +34,18 @@ export function createMetadata({
   noIndex,
 }: CreateMetadataOptions): Metadata {
   const url = `${siteConfig.url}${path === "/" ? "" : path}`;
+  const esUrl = `${siteConfig.url}/es${path === "/" ? "" : path}`;
 
   return {
     title,
     description,
-    alternates: { canonical: url },
+    // Canonical points at the English URL; hreflang advertises both language
+    // variants (per-locale self-canonicals: backlog — needs the 12
+    // const-metadata pages converted to generateMetadata).
+    alternates: {
+      canonical: url,
+      ...(isMultilingual() ? { languages: { en: url, es: esUrl, "x-default": url } } : {}),
+    },
     openGraph: {
       type,
       url,

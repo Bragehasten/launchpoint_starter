@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 
 import { Container, Section } from "@/components/shared/container";
 import { Stagger, StaggerItem } from "@/components/shared/motion";
@@ -32,9 +32,11 @@ export type PricingTier = {
 export type PricingProps = {
   heading: Omit<SectionHeadingProps, "className">;
   tiers: PricingTier[];
+  /** Label on the badge over the highlighted tier. */
+  popularLabel?: string;
 };
 
-export function Pricing({ heading, tiers }: PricingProps) {
+export function Pricing({ heading, tiers, popularLabel = "Most popular" }: PricingProps) {
   return (
     <Section>
       <Container className="flex flex-col gap-12">
@@ -49,7 +51,7 @@ export function Pricing({ heading, tiers }: PricingProps) {
                 )}
               >
                 {tier.highlighted ? (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most popular</Badge>
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">{popularLabel}</Badge>
                 ) : null}
                 <CardHeader>
                   <CardTitle>{tier.name}</CardTitle>

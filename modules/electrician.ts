@@ -23,6 +23,7 @@ export const electrician: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "Electrical Service",
+      serviceNounEs: "Servicio Eléctrico",
     },
   },
   nav: [

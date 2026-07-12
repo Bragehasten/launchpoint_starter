@@ -37,14 +37,11 @@ export default async function AdminTeamPage() {
             type: "text",
             hint: "Upload in Media, then paste the URL.",
           },
-          { name: "active", label: "Visible on site", type: "checkbox" },
+          { name: "active", label: "Visible on site", type: "checkbox", falseLabel: "Hidden" },
           { name: "sort_order", label: "Sort order", type: "number" },
         ]}
         upsertAction={upsertTeamMember}
         deleteAction={deleteTeamMember}
-        renderCell={(record, column) =>
-          column === "active" ? (record.active ? "Yes" : "Hidden") : String(record[column] ?? "—")
-        }
       />
     </div>
   );

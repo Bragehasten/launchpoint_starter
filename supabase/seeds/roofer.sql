@@ -58,3 +58,83 @@ insert into public.service_areas (name, slug, region, intro, body, faqs, sort_or
    null,
    '[{"question":"How fast can you fix a leak in Stuart?","answer":"Repairs in Stuart are usually scheduled within the week; active leaks get tarped within 24 hours."}]',
    5);
+
+-- Spanish translations for the demo content (see docs/i18n.md). Records are
+-- matched on the English source value (or slug for service areas, whose intros
+-- are long and quote-heavy). Safe to re-run: upserts by unique key.
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'service_groups', g.id, 'es', 'name', t.es
+from public.service_groups g
+join (values
+  ('Residential Roofing', 'Techado residencial'),
+  ('Specialty', 'Especialidad')
+) as t(en, es) on g.name = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'services', s.id, 'es', 'name', t.es
+from public.services s
+join (values
+  ('Roof Replacement', 'Reemplazo de techo'),
+  ('Roof Repair', 'Reparación de techo'),
+  ('Storm Damage Inspection', 'Inspección por daños de tormenta'),
+  ('Metal Roofing', 'Techos de metal'),
+  ('Gutter Installation', 'Instalación de canaletas')
+) as t(en, es) on s.name = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'services', s.id, 'es', 'description', t.es
+from public.services s
+join (values
+  ('Full tear-off and replacement, shingle or tile.', 'Retiro completo y reemplazo, de tejas o teja.'),
+  ('Leaks, missing shingles, flashing, soffit and fascia.', 'Goteras, tejas faltantes, tapajuntas, sofito y fascia.'),
+  ('Free inspection with insurance-claim documentation.', 'Inspección gratuita con documentación para el reclamo al seguro.'),
+  ('Standing seam and 5V metal systems.', 'Sistemas de metal de junta alzada y 5V.'),
+  ('Seamless gutters, downspouts, and guards.', 'Canaletas sin costuras, bajantes y protectores.')
+) as t(en, es) on s.description = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'locations', l.id, 'es', 'intro', t.es
+from public.locations l
+join (values
+  ('Our home base on the Treasure Coast — crews dispatch from here daily.', 'Nuestra base en la Treasure Coast: las cuadrillas salen de aquí todos los días.')
+) as t(en, es) on l.intro = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'service_areas', a.id, 'es', 'intro', t.es
+from public.service_areas a
+join (values
+  ('palm-beach', 'Especialistas en techos de teja para las casas mediterráneas más antiguas de Palm Beach: gestionamos los estrictos permisos del condado y las revisiones arquitectónicas de la HOA como parte de cada trabajo.'),
+  ('jupiter', 'Desde Abacoa hasta Inlet Colony, cambiamos el techo de más casas en Jupiter que en ningún otro lugar, y la mayoría son conversiones a metal preparadas para enfrentar la temporada de huracanes.'),
+  ('port-st-lucie', 'El rápido crecimiento de PSL significa que mucha teja asfáltica de calidad básica de los años 2000 llega al final de su vida al mismo tiempo; tenemos dos cuadrillas de reemplazo dedicadas aquí todo el año.'),
+  ('fort-pierce', 'La respuesta ante tormentas es la mayor parte de lo que hacemos en Fort Pierce: inspecciones gratuitas con documentación fotográfica que tu ajustador de seguros sí aceptará.'),
+  ('stuart', 'Nuestro pueblo natal: reparaciones programadas la misma semana, y la única cuadrilla en el condado de Martin a la que dejamos poner nuestro nombre en un letrero de jardín.')
+) as t(slug, es) on a.slug = t.slug
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'service_areas', a.id, 'es', 'body', t.es
+from public.service_areas a
+join (values
+  ('palm-beach', 'Gran parte de nuestro trabajo en Palm Beach es teja de barro y concreto en casas construidas entre los años 1960 y 1990, donde igualar los perfiles existentes importa tanto como la impermeabilización debajo. Mantenemos relaciones con los principales proveedores de teja para poder igualar perfiles descontinuados con material recuperado.'),
+  ('jupiter', 'Los propietarios de Jupiter piden cada vez más metal de junta alzada cuando su techo de tejas llega al final de su vida, y es lo que pondríamos en nuestras propias casas aquí: mejor resistencia al viento, primas de seguro más bajas y una vida útil de más de 40 años en aire salino.'),
+  ('port-st-lucie', 'Si tus vecinos están cambiando el techo, el tuyo probablemente sea del mismo lote del constructor. Ofrecemos programación a nivel de calle en PSL: varias casas en una cuadra comparten los costos de movilización, lo que se refleja como un descuento real en cada contrato.'),
+  ('fort-pierce', 'Después de una tormenta con nombre, priorizamos las inspecciones de Fort Pierce en un plazo de 48 horas. Nuestros informes usan el formato estándar de la aseguradora (fotos por pendiente, cuadros de prueba, lecturas de humedad), que es la diferencia entre un reclamo sin problemas y una disputa.')
+) as t(slug, es) on a.slug = t.slug
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'service_areas', a.id, 'es', 'faqs', t.es
+from public.service_areas a
+join (values
+  ('palm-beach', '[{"question":"¿Gestionan la aprobación arquitectónica de la HOA?","answer":"Sí: preparamos el paquete de presentación (perfiles, colores, especificaciones) para la junta de tu HOA como parte del contrato."},{"question":"¿Pueden igualar mi teja actual?","answer":"Normalmente sí. Conseguimos teja recuperada para perfiles descontinuados y llevamos muestras antes de comenzar."}]'),
+  ('jupiter', '[{"question":"¿Vale la pena el metal cerca de la costa?","answer":"A menos de un kilómetro del agua salada recomendamos junta alzada de aluminio específicamente: dura más que el acero en aire salino y tiene la misma resistencia al viento."},{"question":"¿Un techo de metal bajará mi seguro?","answer":"A menudo sí. Las aseguradoras de Florida ofrecen descuentos por sistemas de metal aprobados por el FBC con instalación documentada; nosotros entregamos el papeleo."}]'),
+  ('port-st-lucie', '[{"question":"Mis vecinos están cambiando el techo, ¿ofrecen precio grupal?","answer":"Sí. Dos o más casas en la misma calle programadas juntas ahorran en movilización; pregunta por la tarifa de calle."}]'),
+  ('fort-pierce', '[{"question":"¿Trabajan directamente con el seguro?","answer":"Documentamos según los estándares de la aseguradora y nos reunimos con tu ajustador en el sitio, pero tú mantienes el control de tu reclamo; nunca aceptamos cesión de beneficios."}]'),
+  ('stuart', '[{"question":"¿Qué tan rápido pueden reparar una gotera en Stuart?","answer":"Las reparaciones en Stuart suelen programarse dentro de la semana; las goteras activas se cubren con lona en 24 horas."}]')
+) as t(slug, es) on a.slug = t.slug
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;

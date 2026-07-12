@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, Mail, MapPin, Phone, Star } from "lucide-react";
 
@@ -18,7 +18,8 @@ import {
   getLocationReviews,
   getTeamAtLocation,
 } from "@/lib/capabilities/queries";
-import { toClientDef } from "@/lib/forms/types";
+import { resolveFormDef, toClientDef } from "@/lib/forms/types";
+import { getDict, interpolate } from "@/lib/i18n";
 import { createMetadata, JsonLd, locationBusinessJsonLd } from "@/lib/seo";
 import type { Json } from "@/types/json";
 
@@ -72,7 +73,9 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
     isCapabilityEnabled("team") ? getTeamAtLocation(location.id) : Promise.resolve([]),
   ]);
   const hours = parseHours(location.hours);
-  const contactDef = getFormDef("contact") ?? formRegistry.contact ?? null;
+  const { locale, dict } = await getDict();
+  const baseContactDef = getFormDef("contact") ?? formRegistry.contact ?? null;
+  const contactDef = baseContactDef ? resolveFormDef(baseContactDef, locale) : null;
 
   const jsonLd = locationBusinessJsonLd({
     businessType: clientConfig.module.businessType,
@@ -99,11 +102,13 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
               className="text-muted-foreground inline-flex w-fit items-center gap-1.5 text-sm hover:underline"
             >
               <ArrowLeft className="size-3.5" aria-hidden="true" />
-              All locations
+              {dict.locations.allLocations}
             </Link>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="heading text-3xl text-balance sm:text-4xl">{location.name}</h1>
-              {location.is_primary ? <Badge variant="secondary">Main location</Badge> : null}
+              {location.is_primary ? (
+                <Badge variant="secondary">{dict.locations.mainLocation}</Badge>
+              ) : null}
             </div>
             {location.intro ? (
               <p className="text-muted-foreground max-w-2xl text-lg">{location.intro}</p>
@@ -175,7 +180,7 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
 
           {team.length > 0 ? (
             <div className="flex flex-col gap-6">
-              <h2 className="heading text-2xl">The team here</h2>
+              <h2 className="heading text-2xl">{dict.locations.teamHere}</h2>
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {team.map((member) => (
                   <li key={member.id}>
@@ -198,7 +203,7 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
 
           {reviews.length > 0 ? (
             <div className="flex flex-col gap-6">
-              <h2 className="heading text-2xl">What customers say</h2>
+              <h2 className="heading text-2xl">{dict.locations.customersSay}</h2>
               <ul className="grid gap-4 sm:grid-cols-2">
                 {reviews.map((review) => (
                   <li key={review.id}>
@@ -238,8 +243,8 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
           {contactDef ? (
             <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
               <SectionHeading
-                title={`Contact ${location.name}`}
-                description="Questions about this location? Send a message."
+                title={interpolate(dict.locations.contactLocation, { name: location.name })}
+                description={dict.locations.contactLocationBody}
               />
               <DynamicForm def={toClientDef(contactDef)} />
             </div>

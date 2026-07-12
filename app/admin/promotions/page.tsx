@@ -45,23 +45,13 @@ export default async function AdminPromotionsPage() {
             label: "Ends (ISO date, optional)",
             type: "text",
             placeholder: "2026-08-31",
+            format: "date-short",
           },
-          { name: "active", label: "Active", type: "checkbox" },
+          { name: "active", label: "Active", type: "checkbox", falseLabel: "Off" },
           { name: "sort_order", label: "Sort order", type: "number" },
         ]}
         upsertAction={upsertPromotion}
         deleteAction={deletePromotion}
-        renderCell={(record, column) => {
-          if (column === "active") return record.active ? "Yes" : "Off";
-          if (column === "ends_at")
-            return record.ends_at
-              ? new Date(String(record.ends_at)).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })
-              : "—";
-          return String(record[column] ?? "—");
-        }}
       />
     </div>
   );

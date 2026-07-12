@@ -28,6 +28,7 @@ export const customHomeBuilder: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "Custom Home Building",
+      serviceNounEs: "Construcción de Casas a Medida",
     },
   },
   nav: [

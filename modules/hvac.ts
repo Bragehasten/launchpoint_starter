@@ -27,6 +27,7 @@ export const hvac: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "HVAC Service",
+      serviceNounEs: "Climatización",
     },
   },
   nav: [

@@ -73,6 +73,8 @@ export type CapabilityConfigs = {
      * Defaults to the module label.
      */
     serviceNoun?: string;
+    /** Spanish service noun for /es pages ("Roofing" → "Techado"). */
+    serviceNounEs?: string;
     /** Copy above the areas index grid. */
     intro?: string;
   };

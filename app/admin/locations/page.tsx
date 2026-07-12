@@ -30,7 +30,6 @@ export default async function AdminLocationsPage() {
   ]);
 
   const locationOptions = (locations ?? []).map((l) => ({ value: l.id, label: l.name }));
-  const locationName = new Map((locations ?? []).map((l) => [l.id, l.name]));
 
   return (
     <div className="flex flex-col gap-10">
@@ -87,25 +86,12 @@ export default async function AdminLocationsPage() {
           },
           { name: "latitude", label: "Latitude", type: "text", placeholder: "30.2672" },
           { name: "longitude", label: "Longitude", type: "text", placeholder: "-97.7431" },
-          { name: "is_primary", label: "Primary location", type: "checkbox" },
+          { name: "is_primary", label: "Primary location", type: "checkbox", falseLabel: "—" },
           { name: "active", label: "Visible on site", type: "checkbox" },
           { name: "sort_order", label: "Sort order", type: "number" },
         ]}
         upsertAction={upsertLocation}
         deleteAction={deleteLocation}
-        toFormValues={(record) => ({
-          ...record,
-          hours: JSON.stringify(record.hours ?? [], null, 0),
-          latitude: record.latitude ?? "",
-          longitude: record.longitude ?? "",
-        })}
-        renderCell={(record, column) =>
-          column === "is_primary"
-            ? record.is_primary
-              ? "Yes"
-              : "—"
-            : String(record[column] ?? "—")
-        }
       />
 
       <CrudManager
@@ -128,20 +114,11 @@ export default async function AdminLocationsPage() {
               { value: "direct", label: "Direct" },
             ],
           },
-          { name: "published", label: "Published", type: "checkbox" },
+          { name: "published", label: "Published", type: "checkbox", falseLabel: "Hidden" },
           { name: "sort_order", label: "Sort order", type: "number" },
         ]}
         upsertAction={upsertLocationReview}
         deleteAction={deleteLocationReview}
-        renderCell={(record, column) =>
-          column === "location_id"
-            ? (locationName.get(String(record.location_id)) ?? "—")
-            : column === "published"
-              ? record.published
-                ? "Yes"
-                : "Hidden"
-              : String(record[column] ?? "—")
-        }
       />
     </div>
   );

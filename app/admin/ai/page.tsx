@@ -5,6 +5,8 @@ import { aiEnabled } from "@/lib/ai/client";
 import { aiTasks, aiTaskKeys } from "@/lib/ai/tasks";
 import { requireRole } from "@/lib/auth";
 import { isCapabilityEnabled } from "@/lib/capabilities";
+import { isMultilingual } from "@/lib/i18n";
+import { TRANSLATABLE_FIELDS } from "@/lib/i18n/content";
 
 export const metadata: Metadata = { title: "AI Studio" };
 
@@ -28,7 +30,18 @@ export default async function AdminAiPage() {
         </p>
       </div>
       {aiEnabled() ? (
-        <AiStudio tasks={tasks} serviceAreasEnabled={isCapabilityEnabled("serviceAreas")} />
+        <AiStudio
+          tasks={tasks}
+          serviceAreasEnabled={isCapabilityEnabled("serviceAreas")}
+          translatableEntities={
+            isMultilingual()
+              ? Object.keys(TRANSLATABLE_FIELDS).map((entity) => ({
+                  value: entity,
+                  label: entity.replaceAll("_", " "),
+                }))
+              : []
+          }
+        />
       ) : (
         <p className="text-muted-foreground rounded-md border border-dashed p-12 text-center text-sm">
           AI is not configured. Add <code className="font-mono">ANTHROPIC_API_KEY</code> to{" "}

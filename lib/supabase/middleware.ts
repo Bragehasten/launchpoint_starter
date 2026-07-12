@@ -15,6 +15,8 @@ import type { Database } from "@/types/database";
 export async function updateSession(
   request: NextRequest,
   requestHeaders?: Headers,
+  /** Internal rewrite target (i18n: /es/menu renders /menu). */
+  rewriteTo?: URL,
 ): Promise<{ response: NextResponse; user: User | null }> {
   // Headers forwarded to the render. Mutating request.headers directly is NOT
   // honored by NextResponse.next — the override must be an explicit Headers
@@ -22,7 +24,12 @@ export async function updateSession(
   // Next.js so it can stamp its framework scripts.
   const headers = requestHeaders ?? new Headers(request.headers);
 
-  let response = NextResponse.next({ request: { headers } });
+  const buildResponse = () =>
+    rewriteTo
+      ? NextResponse.rewrite(rewriteTo, { request: { headers } })
+      : NextResponse.next({ request: { headers } });
+
+  let response = buildResponse();
 
   const supabase = createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
@@ -43,7 +50,7 @@ export async function updateSession(
               .map(({ name, value }) => `${name}=${value}`)
               .join("; "),
           );
-          response = NextResponse.next({ request: { headers } });
+          response = buildResponse();
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
           );

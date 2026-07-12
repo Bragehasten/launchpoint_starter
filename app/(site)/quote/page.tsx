@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { formRegistry } from "@/config/forms";
-import { toClientDef } from "@/lib/forms/types";
+import { resolveFormDef, toClientDef } from "@/lib/forms/types";
+import { getLocale } from "@/lib/i18n";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Container, Section } from "@/components/shared/container";
 import { FadeIn } from "@/components/shared/motion";
@@ -37,7 +38,7 @@ export default async function QuotePage() {
           align="left"
         />
         <FadeIn>
-          <DynamicForm def={toClientDef(formRegistry.quote!)} />
+          <DynamicForm def={toClientDef(resolveFormDef(formRegistry.quote!, await getLocale()))} />
         </FadeIn>
       </Container>
     </Section>

@@ -28,6 +28,7 @@ export const roofer: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "Roofing",
+      serviceNounEs: "Techado",
     },
   },
   nav: [

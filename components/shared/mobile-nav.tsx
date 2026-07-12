@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { Menu } from "lucide-react";
 
 import { NavLink } from "@/components/shared/nav-link";
@@ -49,7 +49,7 @@ export function MobileNav({ siteName, items, cta }: MobileNavProps) {
           </ul>
         </nav>
         {cta ? (
-          <Button asChild className="mt-2">
+          <Button asChild className="mt-2 rounded-full">
             <Link href={cta.href} onClick={close}>
               {cta.title}
             </Link>

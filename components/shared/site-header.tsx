@@ -1,12 +1,15 @@
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 
 import { Container } from "@/components/shared/container";
+import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { MobileNav } from "@/components/shared/mobile-nav";
 import { NavLink } from "@/components/shared/nav-link";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 import { headerStyle } from "@/config/theme";
+import { getDict, isMultilingual } from "@/lib/i18n";
+import { translateNavTitle } from "@/lib/i18n/nav";
 import { getMainNav } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
@@ -17,8 +20,9 @@ import { cn } from "@/lib/utils";
  * - sticky: pinned with blur; otherwise scrolls away.
  * - transparent: no background/border — for heroes that start at the top.
  */
-export function SiteHeader() {
-  const mainNav = getMainNav();
+export async function SiteHeader() {
+  const { locale, dict } = await getDict();
+  const mainNav = getMainNav(locale);
   const { layout, sticky, transparent } = headerStyle;
 
   const logo = (
@@ -30,10 +34,13 @@ export function SiteHeader() {
   const actions = (
     <div className="flex items-center gap-1">
       {siteConfig.headerCta ? (
-        <Button asChild size="sm" className="ml-4 hidden sm:inline-flex">
-          <Link href={siteConfig.headerCta.href}>{siteConfig.headerCta.title}</Link>
+        <Button asChild size="sm" className="ml-4 hidden rounded-full px-4 sm:inline-flex">
+          <Link href={siteConfig.headerCta.href}>
+            {translateNavTitle(siteConfig.headerCta.title, locale)}
+          </Link>
         </Button>
       ) : null}
+      {isMultilingual() ? <LanguageSwitcher label={dict.common.switchLanguage} /> : null}
       {siteConfig.features.darkModeToggle ? <ThemeToggle /> : null}
       <MobileNav siteName={siteConfig.name} items={mainNav} cta={siteConfig.headerCta} />
     </div>
@@ -64,7 +71,7 @@ export function SiteHeader() {
         href="#main-content"
         className="focus:bg-background focus:ring-ring sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-3 focus:py-2 focus:text-sm focus:ring-2"
       >
-        Skip to content
+        {dict.common.skipToContent}
       </a>
       {layout === "centered" ? (
         <Container className="grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-4">

@@ -5,7 +5,8 @@ import { DynamicForm } from "@/components/forms/dynamic-form";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Container, Section } from "@/components/shared/container";
 import { enabledForms, getFormDef } from "@/config/forms";
-import { toClientDef } from "@/lib/forms/types";
+import { resolveFormDef, toClientDef } from "@/lib/forms/types";
+import { getLocale } from "@/lib/i18n";
 import { createMetadata } from "@/lib/seo";
 
 /**
@@ -20,15 +21,17 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const def = getFormDef(slug);
-  if (!def) return {};
+  const baseDef = getFormDef(slug);
+  if (!baseDef) return {};
+  const def = resolveFormDef(baseDef, await getLocale());
   return createMetadata({ title: def.title, path: `/forms/${slug}` });
 }
 
 export default async function FormPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const def = getFormDef(slug);
-  if (!def) notFound();
+  const baseDef = getFormDef(slug);
+  if (!baseDef) notFound();
+  const def = resolveFormDef(baseDef, await getLocale());
 
   return (
     <Section>

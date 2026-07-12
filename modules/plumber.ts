@@ -20,6 +20,7 @@ export const plumber: IndustryModule = {
       enabled: true,
       label: "Service Areas",
       serviceNoun: "Plumbing",
+      serviceNounEs: "Plomería",
     },
   },
   nav: [

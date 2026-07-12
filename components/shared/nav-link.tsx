@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { LocalLink as Link } from "@/components/shared/local-link";
 import { usePathname } from "next/navigation";
 
 import type { NavItem } from "@/config/site";

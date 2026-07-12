@@ -2,21 +2,23 @@ import { DynamicForm } from "@/components/forms/dynamic-form";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Container, Section } from "@/components/shared/container";
 import { getFormDef } from "@/config/forms";
-import { toClientDef } from "@/lib/forms/types";
+import { resolveFormDef, toClientDef } from "@/lib/forms/types";
+import { getLocale } from "@/lib/i18n";
 
 /**
  * CMS section wrapper for engine forms. A disabled or unknown slug renders
  * nothing in production (a warning box in dev), matching the section
  * renderer's invalid-block behavior.
  */
-export function FormSection({
+export async function FormSection({
   form,
   heading,
 }: {
   form: string;
   heading?: { eyebrow?: string; title: string; description?: string; align?: "center" | "left" };
 }) {
-  const def = getFormDef(form);
+  const baseDef = getFormDef(form);
+  const def = baseDef ? resolveFormDef(baseDef, await getLocale()) : null;
   if (!def) {
     if (process.env.NODE_ENV !== "production") {
       return (

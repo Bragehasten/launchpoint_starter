@@ -59,18 +59,11 @@ export default async function AdminServiceAreasPage() {
             placeholder: '[{"question":"Do you serve …?","answer":"Yes — …"}]',
             hint: "Rendered as an accordion + FAQPage structured data.",
           },
-          { name: "active", label: "Visible on site", type: "checkbox" },
+          { name: "active", label: "Visible on site", type: "checkbox", falseLabel: "Hidden" },
           { name: "sort_order", label: "Sort order", type: "number" },
         ]}
         upsertAction={upsertServiceArea}
         deleteAction={deleteServiceArea}
-        toFormValues={(record) => ({
-          ...record,
-          faqs: JSON.stringify(record.faqs ?? [], null, 0),
-        })}
-        renderCell={(record, column) =>
-          column === "active" ? (record.active ? "Yes" : "Hidden") : String(record[column] ?? "—")
-        }
       />
     </div>
   );

@@ -51,3 +51,102 @@ where l.slug = 'downtown';
 insert into public.promotions (title, body, badge, sort_order) values
   ('First Visit — 20% Off', 'New to the shop? Your first cut is 20% off. Just mention this offer.', '20% off', 1),
   ('Tuesday Senior Special', 'Classic cuts for the 65+ crowd, $25 all day Tuesday.', '$25', 2);
+
+-- Spanish translations for the demo content (see docs/i18n.md). Matched on the
+-- English source value since seed ids are non-deterministic. Safe to re-run:
+-- upserts by (entity, entity_id, locale, field).
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'service_groups', g.id, 'es', 'name', t.es
+from public.service_groups g
+join (values
+  ('Haircuts', 'Cortes de cabello'),
+  ('Shaves & Beards', 'Afeitados y barbas')
+) as t(en, es) on g.name = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'service_groups', g.id, 'es', 'description', t.es
+from public.service_groups g
+join (values
+  ('All shave services include a hot towel finish.', 'Todos los servicios de afeitado incluyen un acabado con toalla caliente.')
+) as t(en, es) on g.description = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'services', s.id, 'es', 'name', t.es
+from public.services s
+join (values
+  ('Classic Cut', 'Corte clásico'),
+  ('Skin Fade', 'Desvanecido a piel'),
+  ('Kids Cut', 'Corte para niños'),
+  ('Beard Trim', 'Recorte de barba'),
+  ('Hot Towel Shave', 'Afeitado con toalla caliente')
+) as t(en, es) on s.name = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'services', s.id, 'es', 'description', t.es
+from public.services s
+join (values
+  ('Scissor or clipper cut with lineup.', 'Corte con tijera o máquina con perfilado.'),
+  ('Zero fade, styled to finish.', 'Desvanecido a cero, peinado para rematar.'),
+  ('12 and under.', 'Para menores de 12 años.'),
+  ('Shape, line, and condition.', 'Perfilado, definición y acondicionamiento.'),
+  ('The full ritual. 45 minutes of peace.', 'El ritual completo. 45 minutos de calma.')
+) as t(en, es) on s.description = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'team_members', m.id, 'es', 'role', t.es
+from public.team_members m
+join (values
+  ('Master Barber', 'Barbero maestro'),
+  ('Barber & Stylist', 'Barbero y estilista'),
+  ('Barber', 'Barbero')
+) as t(en, es) on m.role = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'team_members', m.id, 'es', 'bio', t.es
+from public.team_members m
+join (values
+  ('15 years behind the chair. Fades, tapers, and straight-razor work.', '15 años detrás de la silla. Desvanecidos, degradados y trabajo con navaja.'),
+  ('Precision scissor work and classic styles.', 'Trabajo de tijera de precisión y estilos clásicos.'),
+  ('The beard whisperer. Book the hot towel shave.', 'El experto en barbas. Reserva el afeitado con toalla caliente.')
+) as t(en, es) on m.bio = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'promotions', p.id, 'es', 'title', t.es
+from public.promotions p
+join (values
+  ('First Visit — 20% Off', 'Primera visita — 20% de descuento'),
+  ('Tuesday Senior Special', 'Especial de martes para adultos mayores')
+) as t(en, es) on p.title = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'promotions', p.id, 'es', 'body', t.es
+from public.promotions p
+join (values
+  ('New to the shop? Your first cut is 20% off. Just mention this offer.', '¿Nuevo en la barbería? Tu primer corte tiene 20% de descuento. Solo menciona esta oferta.'),
+  ('Classic cuts for the 65+ crowd, $25 all day Tuesday.', 'Cortes clásicos para mayores de 65 años, $25 todo el día martes.')
+) as t(en, es) on p.body = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'promotions', p.id, 'es', 'badge', t.es
+from public.promotions p
+join (values
+  ('20% off', '20% desc.')
+) as t(en, es) on p.badge = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
+
+insert into public.translations (entity, entity_id, locale, field, value)
+select 'locations', l.id, 'es', 'intro', t.es
+from public.locations l
+join (values
+  ('Our original shop in the heart of downtown Austin — walk-ins welcome, bookings preferred.', 'Nuestra barbería original en el corazón del centro de Austin: se aceptan visitas sin cita, se prefieren las reservas.')
+) as t(en, es) on l.intro = t.en
+on conflict (entity, entity_id, locale, field) do update set value = excluded.value;
