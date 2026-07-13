@@ -16,7 +16,8 @@ import {
 } from "@/components/sections";
 import { FormSection } from "@/components/forms/form-section";
 import { getIcon } from "@/lib/sections/icons";
-import { sectionSchemas, type SectionType } from "@/lib/sections/schemas";
+import { sectionMeta } from "@/lib/sections/meta";
+import { sectionSchemas, sectionTypes, type SectionType } from "@/lib/sections/schemas";
 
 /**
  * Section registry: maps section type strings to render functions.
@@ -56,4 +57,17 @@ export const sectionRenderers: Renderers = {
 export function renderSection(type: SectionType, props: Record<string, unknown>) {
   const renderer = sectionRenderers[type] as (p: Record<string, unknown>) => React.ReactNode;
   return renderer(props);
+}
+
+// Dev-boot completeness gate: every registered section must have all three of
+// schema + renderer + meta. Types already enforce this, but a runtime check
+// catches a section wired up without a meta entry before it reaches a client.
+if (process.env.NODE_ENV !== "production") {
+  for (const type of sectionTypes) {
+    if (!sectionSchemas[type]) throw new Error(`[registry] section "${type}" has no schema`);
+    if (!sectionRenderers[type]) throw new Error(`[registry] section "${type}" has no renderer`);
+    if (!sectionMeta[type]) {
+      throw new Error(`[registry] section "${type}" has no meta entry (lib/sections/meta.ts)`);
+    }
+  }
 }

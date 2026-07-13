@@ -178,3 +178,21 @@ definitions, generic translations table overlaying capability content with
 per-field English fallback, AI batch translation in AI Studio, language
 switcher, hreflang + dual sitemap.
 _Done._
+
+---
+
+# v5 — Composable Design Engine (M22–M25)
+
+Full specification: `docs/design-engine.md`. Four additions on the existing
+architecture: a primitives layer, a shared four-axis variant vocabulary,
+layout strategies as first-class props, and pattern presets + registry
+metadata (docs/testing/AI triple-use). Refits are pixel-equivalent by
+default; every phase ends with a /dev/sections verification gate.
+
+## ✅ Milestone 22 — Phase A: Foundation (variants, SectionShell, core primitives, Hero+CTA refit)
+
+## ✅ Milestone 23 — Phase B: Layout strategies + card-grid dedupe (Features/Testimonials/Team/Gallery)
+
+## ✅ Milestone 24 — Phase C: Full section refit + personality facets + patterns/rhythms + two new themes + wizard design question
+
+## ✅ Milestone 25 — Phase D: Registry metadata (`lib/sections/meta.ts`), catalog-driven /dev/sections, `tests/sections.spec.ts`, AI `assembleLandingPage` → draft cms_pages

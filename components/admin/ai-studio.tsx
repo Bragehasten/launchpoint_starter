@@ -4,7 +4,12 @@ import * as React from "react";
 import { Check, Copy, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-import { createServiceAreaDraft, runAiTask, translateEntityToSpanish } from "@/actions/ai";
+import {
+  assembleLandingPage,
+  createServiceAreaDraft,
+  runAiTask,
+  translateEntityToSpanish,
+} from "@/actions/ai";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,11 +34,14 @@ export function AiStudio({
   tasks,
   serviceAreasEnabled,
   translatableEntities,
+  rhythms,
 }: {
   tasks: TaskMeta[];
   serviceAreasEnabled: boolean;
   /** Entity types offered for ES batch translation ([] = monolingual site). */
   translatableEntities: { value: string; label: string }[];
+  /** Page rhythms offered for AI landing-page assembly. */
+  rhythms: { value: string; label: string }[];
 }) {
   const [taskKey, setTaskKey] = React.useState(tasks[0]?.key ?? "");
   const [topic, setTopic] = React.useState("");
@@ -139,9 +147,76 @@ export function AiStudio({
         </CardContent>
       </Card>
 
+      {rhythms.length > 0 ? <AssemblePanel rhythms={rhythms} /> : null}
       {serviceAreasEnabled ? <AreaDraftPanel /> : null}
       {translatableEntities.length > 0 ? <TranslatePanel entities={translatableEntities} /> : null}
     </div>
+  );
+}
+
+/** Assembles a full landing page from patterns + a rhythm, saved as a draft. */
+function AssemblePanel({ rhythms }: { rhythms: { value: string; label: string }[] }) {
+  const [title, setTitle] = React.useState("");
+  const [rhythm, setRhythm] = React.useState(rhythms[0]?.value ?? "");
+  const [pending, startTransition] = React.useTransition();
+
+  function onAssemble() {
+    startTransition(async () => {
+      const result = await assembleLandingPage({ title, rhythm: rhythm || undefined });
+      if (result.success) {
+        toast.success(
+          `Draft page assembled (${result.blocks} sections): review it under Pages → ${result.slug}`,
+        );
+        setTitle("");
+      } else {
+        toast.error(result.message);
+      }
+    });
+  }
+
+  return (
+    <Card className="lg:col-span-2">
+      <CardHeader>
+        <CardTitle className="heading">Assemble a landing page</CardTitle>
+        <CardDescription>
+          The model composes a full page from section patterns following a rhythm, validated and
+          saved as a <strong>draft</strong> — review and publish under Pages. Never goes live on its
+          own.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="assemble-title">Page title</Label>
+            <Input
+              id="assemble-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Fades & shaves in Jupiter"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="assemble-rhythm">Rhythm</Label>
+            <select
+              id="assemble-rhythm"
+              value={rhythm}
+              onChange={(e) => setRhythm(e.target.value)}
+              className="border-input bg-background focus-visible:ring-ring/50 h-9 rounded-md border px-3 text-sm shadow-xs focus-visible:ring-2 focus-visible:outline-none"
+            >
+              {rhythms.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <Button onClick={onAssemble} disabled={pending || !title.trim()} className="w-fit">
+          {pending ? <Loader2 className="animate-spin" /> : <Sparkles />}
+          Assemble draft
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 

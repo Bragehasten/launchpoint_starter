@@ -1,36 +1,49 @@
-import { LocalLink as Link } from "@/components/shared/local-link";
+import { ContentBlock } from "@/components/primitives/content-block";
+import { CtaGroup } from "@/components/primitives/cta-group";
+import { SectionShell } from "@/components/primitives/section-shell";
+import type { ButtonProps } from "@/components/ui/button";
+import type { SectionVariantProps } from "@/lib/design/variants";
 
-import { Container, Section } from "@/components/shared/container";
-import { FadeIn } from "@/components/shared/motion";
-import { Button, type ButtonProps } from "@/components/ui/button";
-
-export type CtaProps = {
+export type CtaProps = SectionVariantProps & {
   title: string;
   description?: string;
   actions: { label: string; href: string; variant?: ButtonProps["variant"] }[];
 };
 
-/** Full-width call-to-action banner, typically placed before the footer. */
-export function Cta({ title, description, actions }: CtaProps) {
+/**
+ * Full-width call-to-action banner, typically placed before the footer. A thin
+ * assembly: a {@link SectionShell} wrapping a {@link ContentBlock} styled as an
+ * inverted primary panel, with a {@link CtaGroup}. Default props reproduce the
+ * previous banner markup exactly.
+ *
+ * @example
+ *   <Cta title="Ready to start?" actions={[{ label: "Book now", href: "/book" }]} />
+ */
+export function Cta({
+  title,
+  description,
+  actions,
+  surface,
+  density,
+  background,
+  backgroundImage,
+}: CtaProps) {
   return (
-    <Section>
-      <Container>
-        <FadeIn className="bg-primary text-primary-foreground flex flex-col items-center gap-6 rounded-2xl px-6 py-16 text-center sm:px-16">
-          <h2 className="heading max-w-xl text-3xl text-balance sm:text-4xl">{title}</h2>
-          {description ? (
-            <p className="text-primary-foreground/80 max-w-xl text-lg text-balance">
-              {description}
-            </p>
-          ) : null}
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {actions.map((action) => (
-              <Button key={action.href} asChild size="lg" variant={action.variant ?? "secondary"}>
-                <Link href={action.href}>{action.label}</Link>
-              </Button>
-            ))}
-          </div>
-        </FadeIn>
-      </Container>
-    </Section>
+    <SectionShell
+      surface={surface}
+      density={density}
+      background={background}
+      backgroundImage={backgroundImage}
+    >
+      <ContentBlock
+        titleAs="h2"
+        title={title}
+        description={description}
+        descriptionTone="inverted"
+        align="center"
+        className="bg-primary text-primary-foreground rounded-2xl px-6 py-16 sm:px-16"
+        footer={<CtaGroup actions={actions} align="center" defaultVariant="secondary" />}
+      />
+    </SectionShell>
   );
 }

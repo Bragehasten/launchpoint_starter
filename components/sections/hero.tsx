@@ -1,11 +1,10 @@
-import Image from "next/image";
-import { LocalLink as Link } from "@/components/shared/local-link";
-
-import { Container, Section } from "@/components/shared/container";
-import { FadeIn } from "@/components/shared/motion";
-import { Badge } from "@/components/ui/badge";
-import { Button, type ButtonProps } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { ContentBlock } from "@/components/primitives/content-block";
+import { CtaGroup } from "@/components/primitives/cta-group";
+import { SplitLayout } from "@/components/primitives/layouts/split";
+import { MediaBlock } from "@/components/primitives/media-block";
+import { SectionShell } from "@/components/primitives/section-shell";
+import type { ButtonProps } from "@/components/ui/button";
+import type { SectionVariantProps } from "@/lib/design/variants";
 
 export type HeroAction = {
   label: string;
@@ -13,7 +12,7 @@ export type HeroAction = {
   variant?: ButtonProps["variant"];
 };
 
-export type HeroProps = {
+export type HeroProps = SectionVariantProps & {
   eyebrow?: string;
   title: string;
   description?: string;
@@ -24,6 +23,15 @@ export type HeroProps = {
   layout?: "centered" | "split";
 };
 
+/**
+ * Landing hero — the page's single H1. A thin assembly: a {@link SectionShell}
+ * wrapping a {@link ContentBlock} (+ {@link CtaGroup}) and, in split layout, a
+ * hero {@link MediaBlock}. Default props render exactly the previous markup;
+ * the surface/density/align/background axes are additive and opt-in.
+ *
+ * @example
+ *   <Hero title="Book in seconds" actions={actions} layout="split" image={img} />
+ */
 export function Hero({
   eyebrow,
   title,
@@ -31,57 +39,55 @@ export function Hero({
   actions,
   image,
   layout = "centered",
+  surface,
+  density,
+  align,
+  background,
+  backgroundImage,
 }: HeroProps) {
   const isSplit = layout === "split" && image;
+  // Alignment follows the layout by default; the align axis can override it.
+  const contentAlign = align ?? (isSplit ? "start" : "center");
 
   const content = (
-    <FadeIn
-      className={cn(
-        "flex flex-col gap-6",
-        isSplit ? "items-start text-left" : "items-center text-center",
-      )}
-    >
-      {eyebrow ? <Badge variant="secondary">{eyebrow}</Badge> : null}
-      <h1 className="heading max-w-2xl text-4xl text-balance sm:text-5xl lg:text-6xl">{title}</h1>
-      {description ? (
-        <p className="text-muted-foreground max-w-xl text-lg text-balance">{description}</p>
-      ) : null}
-      {actions && actions.length > 0 ? (
-        <div className={cn("flex flex-wrap items-center gap-3", !isSplit && "justify-center")}>
-          {actions.map((action) => (
-            <Button key={action.href} asChild size="lg" variant={action.variant ?? "default"}>
-              <Link href={action.href}>{action.label}</Link>
-            </Button>
-          ))}
-        </div>
-      ) : null}
-    </FadeIn>
+    <ContentBlock
+      titleAs="h1"
+      eyebrow={eyebrow}
+      title={title}
+      description={description}
+      align={contentAlign}
+      footer={
+        actions && actions.length > 0 ? (
+          <CtaGroup actions={actions} align={contentAlign} />
+        ) : undefined
+      }
+    />
   );
 
   return (
-    <Section>
-      <Container>
-        {isSplit ? (
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            {content}
-            <FadeIn
+    <SectionShell
+      surface={surface}
+      density={density}
+      background={background}
+      backgroundImage={backgroundImage}
+    >
+      {isSplit ? (
+        <SplitLayout
+          primary={content}
+          secondary={
+            <MediaBlock
+              kind="image"
+              src={image.src}
+              alt={image.alt}
+              treatment="hero"
+              priority
               delay={0.15}
-              className="relative aspect-[4/3] overflow-hidden rounded-xl border"
-            >
-              <Image
-                src={image.src}
-                alt={image.alt}
-                fill
-                priority
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
-              />
-            </FadeIn>
-          </div>
-        ) : (
-          content
-        )}
-      </Container>
-    </Section>
+            />
+          }
+        />
+      ) : (
+        content
+      )}
+    </SectionShell>
   );
 }

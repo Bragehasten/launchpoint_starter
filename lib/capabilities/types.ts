@@ -100,6 +100,11 @@ export type IndustryModule = {
   capabilities: Partial<CapabilityConfigs>;
   /** Nav items appended to siteConfig.mainNav (usually capability routes). */
   nav?: NavItem[];
+  /**
+   * Name of a page rhythm (lib/design/patterns.ts) this industry defaults to
+   * for landing-page assembly. Optional — pages may always deviate.
+   */
+  defaultRhythm?: string;
 };
 
 export type ClientConfig = {

@@ -3,9 +3,10 @@ import { LocalLink as Link } from "@/components/shared/local-link";
 import { notFound } from "next/navigation";
 import { ArrowRight, MapPin } from "lucide-react";
 
+import { CardGrid } from "@/components/primitives/layouts/card-grid";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Container, Section } from "@/components/shared/container";
-import { Stagger, StaggerItem } from "@/components/shared/motion";
+import { StaggerItem } from "@/components/shared/motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { clientConfig } from "@/config/client";
 import { getCapability } from "@/lib/capabilities";
@@ -44,7 +45,7 @@ export default async function ServiceAreasPage() {
               : "Add service areas in Admin → Service Areas to fill this page.")
           }
         />
-        <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <CardGrid sm={2} lg={3}>
           {areas.map((area) => (
             <StaggerItem key={area.id}>
               <Link href={`/service-areas/${area.slug}`} className="group block h-full">
@@ -70,7 +71,7 @@ export default async function ServiceAreasPage() {
               </Link>
             </StaggerItem>
           ))}
-        </Stagger>
+        </CardGrid>
       </Container>
     </Section>
   );

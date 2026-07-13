@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { sectionBaseSchema } from "@/lib/design/variants";
+
 /**
  * Zod schemas for every CMS-buildable section.
  *
@@ -28,6 +30,8 @@ const action = z.object({
 
 export const sectionSchemas = {
   hero: z.object({
+    // Shared design-engine axes (surface/density/align/emphasis/background).
+    ...sectionBaseSchema.shape,
     eyebrow: z.string().optional(),
     title: z.string().min(1),
     description: z.string().optional(),
@@ -37,8 +41,10 @@ export const sectionSchemas = {
   }),
 
   features: z.object({
+    ...sectionBaseSchema.shape,
     heading,
     columns: z.union([z.literal(2), z.literal(3), z.literal(4)]).optional(),
+    layout: z.enum(["grid", "carousel"]).optional(),
     features: z
       .array(
         z.object({
@@ -51,7 +57,9 @@ export const sectionSchemas = {
   }),
 
   testimonials: z.object({
+    ...sectionBaseSchema.shape,
     heading,
+    layout: z.enum(["grid", "carousel", "masonry"]).optional(),
     testimonials: z
       .array(
         z.object({
@@ -65,6 +73,7 @@ export const sectionSchemas = {
   }),
 
   pricing: z.object({
+    ...sectionBaseSchema.shape,
     heading,
     tiers: z
       .array(
@@ -82,17 +91,20 @@ export const sectionSchemas = {
   }),
 
   faq: z.object({
+    ...sectionBaseSchema.shape,
     heading,
     items: z.array(z.object({ question: z.string().min(1), answer: z.string().min(1) })).min(1),
   }),
 
   cta: z.object({
+    ...sectionBaseSchema.shape,
     title: z.string().min(1),
     description: z.string().optional(),
     actions: z.array(action).min(1).max(2),
   }),
 
   logos: z.object({
+    ...sectionBaseSchema.shape,
     label: z.string().optional(),
     logos: z
       .array(
@@ -107,6 +119,7 @@ export const sectionSchemas = {
   }),
 
   stats: z.object({
+    ...sectionBaseSchema.shape,
     stats: z
       .array(z.object({ value: z.string().min(1), label: z.string().min(1) }))
       .min(2)
@@ -114,7 +127,9 @@ export const sectionSchemas = {
   }),
 
   team: z.object({
+    ...sectionBaseSchema.shape,
     heading,
+    layout: z.enum(["grid", "carousel"]).optional(),
     members: z
       .array(
         z.object({
@@ -128,6 +143,7 @@ export const sectionSchemas = {
   }),
 
   timeline: z.object({
+    ...sectionBaseSchema.shape,
     heading,
     steps: z
       .array(z.object({ title: z.string().min(1), description: z.string().min(1) }))
@@ -136,6 +152,7 @@ export const sectionSchemas = {
   }),
 
   "before-after": z.object({
+    ...sectionBaseSchema.shape,
     heading,
     items: z
       .array(
@@ -150,8 +167,10 @@ export const sectionSchemas = {
   }),
 
   gallery: z.object({
+    ...sectionBaseSchema.shape,
     heading: heading.optional(),
     columns: z.union([z.literal(2), z.literal(3), z.literal(4)]).optional(),
+    layout: z.enum(["grid", "carousel"]).optional(),
     images: z.array(z.object({ src: z.string().min(1), alt: z.string().min(1) })).min(1),
   }),
 
