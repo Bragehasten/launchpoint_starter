@@ -9,6 +9,7 @@ export const barbershop: IndustryModule = {
   slug: "barbershop",
   label: "Barbershop",
   businessType: "Barbershop",
+  defaultRhythm: "grooming-landing",
   capabilities: {
     team: { enabled: true, label: "Our Barbers" },
     services: {

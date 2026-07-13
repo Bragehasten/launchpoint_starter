@@ -10,6 +10,5 @@ export const clientConfig = defineClient({
   overrides: {
     team: { enabled: false },
     promotions: { enabled: false },
-    locations: { enabled: false },
   },
 });

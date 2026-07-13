@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { AiStudio, type TaskMeta } from "@/components/admin/ai-studio";
 import { aiEnabled } from "@/lib/ai/client";
 import { aiTasks, aiTaskKeys } from "@/lib/ai/tasks";
+import { pageRhythms } from "@/lib/design/patterns";
 import { requireRole } from "@/lib/auth";
 import { isCapabilityEnabled } from "@/lib/capabilities";
 import { isMultilingual } from "@/lib/i18n";
@@ -41,6 +42,7 @@ export default async function AdminAiPage() {
                 }))
               : []
           }
+          rhythms={pageRhythms.map((r) => ({ value: r.name, label: r.name.replaceAll("-", " ") }))}
         />
       ) : (
         <p className="text-muted-foreground rounded-md border border-dashed p-12 text-center text-sm">

@@ -86,6 +86,18 @@ const PALETTES = {
   black: { light: "oklch(0.2 0 0)", dark: "oklch(0.9 0 0)", fgDark: false },
 };
 
+// Brand personality → theme. A theme carries the personality facets
+// (iconStyle/imagery/voice), so picking a personality picks a theme.
+const PERSONALITY_TO_THEME = {
+  "Clean & modern": "modern",
+  "Warm & friendly": "friendly",
+  "Refined & elegant": "elegant",
+  Luxurious: "luxury",
+  "Quiet & minimal": "minimal",
+  "Bold & energetic": "bold",
+  "Rugged & industrial": "industrial",
+};
+
 // ---------------------------------------------------------------------------
 // Prompt helpers
 // ---------------------------------------------------------------------------
@@ -293,7 +305,14 @@ const barberVariant =
   mod.exportName === "barbershop"
     ? await pick("Single barber or a full barbershop?", Object.keys(BARBER_VARIANTS))
     : null;
-const theme = await pick("Design style?", themes, (t) => `${t.label} — ${t.description}`);
+// Personality drives the theme; fall back to a direct pick if the mapped
+// theme isn't present (e.g. a theme was removed).
+const personality = await pick("Brand personality?", Object.keys(PERSONALITY_TO_THEME));
+const mappedThemeKey = PERSONALITY_TO_THEME[personality];
+const theme =
+  themes.find((t) => t.key === mappedThemeKey) ??
+  (await pick("Design style?", themes, (t) => `${t.label} — ${t.description}`));
+console.log(`→ ${personality} maps to the ${theme.label} theme.`);
 const paletteName = await pick("Color palette?", Object.keys(PALETTES));
 const layout = await pick("Navigation layout?", ["split (logo left, nav right)", "centered logo"]);
 const sticky = await yesNo("Sticky header (stays pinned on scroll)?", true);

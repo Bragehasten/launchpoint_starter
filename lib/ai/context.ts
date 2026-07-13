@@ -1,5 +1,6 @@
 import "server-only";
 
+import { activeTheme } from "@/config/theme";
 import { clientConfig } from "@/config/client";
 import { siteConfig } from "@/config/site";
 import { getCapability, isCapabilityEnabled } from "@/lib/capabilities";
@@ -53,4 +54,5 @@ export const BRAND_VOICE_RULES = `Voice rules:
 - Write like the owner talking to a neighbor: concrete, confident, zero corporate filler.
 - Banned: "look no further", "we've got you covered", "your one-stop shop", "nestled", exclamation marks.
 - Specifics beat superlatives. Never invent facts, awards, years in business, or statistics — if a detail isn't provided, don't claim it.
-- American English, sentence case headings.`;
+- American English, sentence case headings.
+- Match the brand's tone: ${activeTheme.personality.voice.join(", ")}.`;

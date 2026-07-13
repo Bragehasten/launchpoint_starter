@@ -62,10 +62,14 @@ export async function generate({
     if (!response.ok) {
       const body = await response.text();
       log.error("api error", { status: response.status, body: body.slice(0, 300) });
+      // Anthropic returns 400 (not 402) when the account is out of credits —
+      // a terminal billing error that "try again" would only obscure.
+      const outOfCredits = response.status === 400 && /credit balance/i.test(body);
       return {
         success: false,
-        message:
-          response.status === 401
+        message: outOfCredits
+          ? "AI request failed: the Anthropic account is out of credits. Add credits at console.anthropic.com → Plans & Billing."
+          : response.status === 401
             ? "AI request failed: check ANTHROPIC_API_KEY."
             : `AI request failed (${response.status}) — try again.`,
       };

@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 const loadFeatures = () => import("@/lib/motion-features").then((mod) => mod.default);
 
 /** Theme motion "none" = render static, exactly like reduced motion. */
-const themeDisablesMotion = activeTheme.motion === "none";
+const themeDisablesMotion = activeTheme.motion.intensity === "none";
 
 type AnimateProps = HTMLMotionProps<"div"> & {
   /** Which entrance animation to use. */

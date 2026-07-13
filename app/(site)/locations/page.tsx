@@ -3,9 +3,10 @@ import { LocalLink as Link } from "@/components/shared/local-link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 
+import { CardGrid } from "@/components/primitives/layouts/card-grid";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Container, Section } from "@/components/shared/container";
-import { Stagger, StaggerItem } from "@/components/shared/motion";
+import { StaggerItem } from "@/components/shared/motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCapability } from "@/lib/capabilities";
@@ -56,7 +57,7 @@ export default async function LocationsPage() {
               : undefined
           }
         />
-        <Stagger className="grid gap-6 sm:grid-cols-2 lg:mx-auto lg:max-w-4xl">
+        <CardGrid sm={2} className="lg:mx-auto lg:max-w-4xl">
           {locations.map((location) => {
             const hours = parseHours(location.hours);
             return (
@@ -126,7 +127,7 @@ export default async function LocationsPage() {
               </StaggerItem>
             );
           })}
-        </Stagger>
+        </CardGrid>
       </Container>
     </Section>
   );

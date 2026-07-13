@@ -14,6 +14,8 @@
 @import "../themes/minimal.css";
 @import "../themes/bold.css";
 @import "../themes/industrial.css";
+@import "../themes/friendly.css";
+@import "../themes/elegant.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -57,6 +59,26 @@
 
   /* Vertical rhythm between page sections */
   --section-space: clamp(4rem, 8vw, 6rem);
+
+  /* Design engine — surfaces. Derived from the existing palette; because they
+     reference tokens that are already redeclared in .dark / per theme, they
+     auto-adapt without separate .dark overrides. Defaults keep today's look. */
+  --surface-raised: var(--card);
+  --surface-sunken: var(--muted);
+  --surface-glass: color-mix(in oklch, var(--background) 72%, transparent);
+  --overlay-scrim: oklch(0 0 0 / 0.5);
+  --border-emphasis: var(--foreground);
+  --gradient-from: var(--primary);
+  --gradient-to: var(--accent);
+
+  /* Design engine — interaction. --ease-brand mirrors theme motion character. */
+  --ease-brand: cubic-bezier(0.4, 0, 0.2, 1);
+  --hover-lift: -2px;
+  --press-scale: 0.98;
+
+  /* Design engine — density multipliers applied to section rhythm (default 1). */
+  --density-compact: 0.7;
+  --density-spacious: 1.35;
 }
 
 .dark {
@@ -115,6 +137,14 @@
   --shadow-card: var(--elevation-card);
   --shadow-elevated: var(--elevation-high);
 
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-glass: var(--surface-glass);
+  --color-overlay-scrim: var(--overlay-scrim);
+  --color-border-emphasis: var(--border-emphasis);
+  --color-gradient-from: var(--gradient-from);
+  --color-gradient-to: var(--gradient-to);
+
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
@@ -146,9 +176,11 @@
   text-transform: var(--heading-transform);
 }
 
-/* Themeable vertical rhythm for page sections. */
+/* Themeable vertical rhythm for page sections. The optional --density
+   multiplier (set by SectionShell for compact/spacious) defaults to 1, so
+   unset callers render the exact same padding as before. */
 @utility section-space {
-  padding-block: var(--section-space);
+  padding-block: calc(var(--section-space) * var(--density, 1));
 }
 
 @layer base {

@@ -3,13 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { savePage } from "@/actions/cms";
+import { clientConfig } from "@/config/client";
 import { extractJson, generate } from "@/lib/ai/client";
-import { buildBusinessContext } from "@/lib/ai/context";
+import { buildBusinessContext, BRAND_VOICE_RULES } from "@/lib/ai/context";
 import { aiTasks, aiTaskKeys, type AiTaskKey } from "@/lib/ai/tasks";
 import { requireRole } from "@/lib/auth";
+import { slugify } from "@/lib/cms/content";
+import { getPageRhythm, pageRhythms, sectionPatterns } from "@/lib/design/patterns";
 import { TRANSLATABLE_FIELDS } from "@/lib/i18n/content";
 import { createLogger } from "@/lib/log";
 import { rateLimit } from "@/lib/rate-limit";
+import { sectionTypes, validateBlocks } from "@/lib/sections/schemas";
 import { createClient } from "@/lib/supabase/server";
 
 const log = createLogger("ai-actions");
@@ -223,4 +228,94 @@ export async function translateEntityToSpanish(input: unknown): Promise<Translat
 
   revalidatePath("/", "layout");
   return { success: true, translated, remaining: pending.length - translated };
+}
+
+// ---------------------------------------------------------------------------
+// Assemble a landing page: the model composes a block array by following a
+// page rhythm, seeded with pattern shapes. Output is validated exactly like
+// human CMS input and saved as a DRAFT (cms_pages.status defaults to 'draft',
+// and /p/[slug] only serves 'published') — it never goes live on its own.
+// ---------------------------------------------------------------------------
+
+const assembleSchema = z.object({
+  title: z.string().min(1, "Give the page a title").max(120),
+  /** Page rhythm name; defaults to the industry module's, then the first. */
+  rhythm: z.string().max(60).optional(),
+});
+
+export type AssembleResult =
+  { success: true; slug: string; blocks: number } | { success: false; message: string };
+
+export async function assembleLandingPage(input: unknown): Promise<AssembleResult> {
+  const limited = await guard();
+  if (limited) return limited;
+
+  const parsed = assembleSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const rhythmName =
+    parsed.data.rhythm || clientConfig.module.defaultRhythm || pageRhythms[0]?.name;
+  const rhythm = rhythmName ? getPageRhythm(rhythmName) : undefined;
+  if (!rhythm) {
+    return { success: false, message: `No page rhythm "${rhythmName ?? ""}" to assemble from.` };
+  }
+
+  const context = await buildBusinessContext();
+  const shapes = sectionPatterns
+    .slice(0, 8)
+    .map((pattern) => JSON.stringify(pattern.block))
+    .join("\n");
+  const sequence = rhythm.sequence
+    .map((step, i) => `${i + 1}. ${step.type} — ${step.intent}`)
+    .join("\n");
+
+  const system = [
+    "You assemble a marketing landing page for a local business as a JSON array of section blocks.",
+    BRAND_VOICE_RULES,
+    "Output rules:",
+    "- Return ONLY a JSON array — no prose, no markdown fences.",
+    '- Each block is an object with a "type" and that section\'s props.',
+    `- Use ONLY these section types: ${sectionTypes.join(", ")}.`,
+    "- Write copy specific to the business below. Never invent prices, stats, or facts.",
+    "- Block shapes for reference (replace the copy with real content):",
+    shapes,
+  ].join("\n");
+
+  const prompt = [
+    `Business context:\n${context}`,
+    `\nAssemble a landing page titled "${parsed.data.title}".`,
+    `Follow this section rhythm, in order:\n${sequence}`,
+    "\nReturn the JSON array of blocks now.",
+  ].join("\n");
+
+  const result = await generate({ system, prompt, maxTokens: 4000 });
+  if (!result.success) return result;
+
+  const blocks = extractJson<unknown[]>(result.text);
+  if (!Array.isArray(blocks) || blocks.length === 0) {
+    log.warn("assemble: model output was not a block array");
+    return { success: false, message: "The model didn't return a usable page — try again." };
+  }
+
+  // Reject if anything is invalid — a partial page never gets saved.
+  const { errors } = validateBlocks(blocks);
+  if (errors.length > 0) {
+    log.warn("assemble: generated blocks failed validation", { count: errors.length });
+    return { success: false, message: "The generated page had invalid sections — try again." };
+  }
+
+  // Persist through the existing CMS action path, as a draft.
+  const saved = await savePage(null, {
+    title: parsed.data.title,
+    slug: parsed.data.title,
+    blocks: JSON.stringify(blocks),
+  });
+  if (!saved.success) {
+    return { success: false, message: saved.message ?? "Could not save the draft page." };
+  }
+
+  revalidatePath("/admin/pages");
+  return { success: true, slug: slugify(parsed.data.title), blocks: blocks.length };
 }
